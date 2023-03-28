@@ -16,4 +16,4 @@ And this is what come of it.
 This is more of a tech demo than an actual functional app. That doesn't mean it can't be used as such but its just a tool for me to play around with.
 
 ## For mam, the OG plonky...
-![OG Plonky](https://github.com/kytschi/plonky/plonky.jpg)                
+![OG Plonky](https://github.com/kytschi/plonky/blob/main/plonky.jpg)                

@@ -117,12 +117,19 @@
                 width: 100%;
                 height: 100%;
             }
-            .toolbar span {
+            .toolbar .title {
                 float: left;       
                 font-size: 20pt;
                 font-weight: bold;
                 margin: 20px;
                 color: #fff;
+            }
+            .toolbar .title p, .project-collection-item .title p {
+                padding: 0;
+                margin: 0;
+            }
+            .toolbar .title span, .project-collection-item .title span {
+                font-size: 10pt;
             }
             #quick-menu-button {                
                 position: fixed;
@@ -229,13 +236,16 @@
         ?>        
         <div id='projects'>
             <div class='toolbar'>
-                <span>Plonky</span>
+                <div class='title'>Plonky</div>
             </div>
             <div id='projects-list'></div>
         </div>
         <main>
             <div class='toolbar'>
-                <span id="request-name">Request</span>
+                <div class='title'>
+                    <p id='request-name'>Request</p>
+                    <span id='request-type'>GET</span>
+                </div>
                 <div id='add-collection' class='button' title='Fire the request off'>
                     <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
                         <path d='M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z'/>
@@ -319,6 +329,7 @@
             try {
                 var projects = <?= json_encode($projects); ?>;
                 var project_key = null;
+                var collection_key = null;
             } catch (err) {
                 showAlert('Failed to load the projects', 'error');
                 console.log(err);
@@ -332,7 +343,7 @@
                     showAlert('Project updated, don\'t forget to save!');
                 } else {
                     project_key = key;
-                    document.getElementById('project-name').value = document.getElementById('project-name-' + key).innerHTML;
+                    document.getElementById('project-name').value = projects[project_key].name;
                     document.getElementById('edit-project').style.display = 'block';
                 }
             }
@@ -358,15 +369,15 @@
                 var html = '';
                 document.getElementById('projects-json').text = JSON.stringify(projects);
                 projects.forEach(function(project, key) {
-                    html += '<div id=\'project-' + key + '\' class=\'project\'>';
+                    html += '<div id=\'project-' + key + '\' class=\'project\' onclick=\'project_key=' + key + '\'>';
                         html += '<div class=\'project-title\'>';
-                        html += '<span id=\'project-name-' + key + '\'>' + project.name + '</span>';
+                        html += '<span>' + project.name + '</span>';
                         html += '<div onclick=\'editProject("' + key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\'/></svg></div>';
                         html += '<div onclick=\'deleteProject("' + key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\'/></svg></div>';
                         html += '</div>';
                         html += '<div class=\'project-collections\'>';
                         project.collections.forEach(function(collection, collection_key) {
-                            html += '<div id=\'collection-' + collection_key + '\' class=\'project-collection\'>';
+                            html += '<div id=\'collection-' + collection_key + '\' class=\'project-collection\' onclick=\'collection_key=' + collection_key + '\'>';
                                 html += '<div class=\'project-collection-toolbar\'>';
                                 html += '<span>' + collection.name + '</span>';
                                 html += '<div onclick=\'growCollection(\"' + collection_key + '\")\' class=\'button-grow button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path fill-rule=\'evenodd\' d=\'M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z\'/></svg></div>';
@@ -374,8 +385,12 @@
                                 html += '</div>';
                                 html += '<div id=\'collection-items-' + collection_key + '\' class=\'project-collection-items\'>';
                                 collection.items.forEach(function(item, item_key) {
-                                    html += '<div id=\'collection-item-' + item_key + '\' class=\'project-collection-item\'>';
-                                    html += '<span>' + item.name + '</span>';
+                                    html += '<div class=\'project-collection-item\' onclick="selectCollectionItem(\'' + item_key + '\')">';
+                                        html += '<div class=\'title\'>';
+                                            html += '<p>' + item.name + '</p>';
+                                            html += '<span>' + item.type + '</span>';
+                                        html += '</div>';
+                                        html += '<div onclick=\'deleteItem("' + item_key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\'/></svg></div>';
                                     html += '</div>';
                                 });
                                 html += '</div>';
@@ -385,6 +400,9 @@
                     html += '</div>';
                 });
                 document.getElementById('projects-list').innerHTML = html;
+            }
+            function selectCollectionItem(key) {
+                document.getElementById('request-name').innerHTML = projects[key].collections[collection_key].items[key].name;
             }
             function growCollection(key) {
                 var collection = document.getElementById('collection-' + key);

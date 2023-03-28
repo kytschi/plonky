@@ -59,7 +59,7 @@ class Plonky
         this->css();
         echo "</head><body><div id='projects'>
                 <div class='toolbar'>
-                    <span>Plonky</span>
+                    <div class='title'>Plonky</div>
                 </div>
                 <div id='projects-list'></div>
             </div>
@@ -271,7 +271,7 @@ class Plonky
                 width: 100%;
                 height: 100%;
             }
-            .toolbar span {
+            .toolbar .title {
                 float: left;       
                 font-size: 20pt;
                 font-weight: bold;

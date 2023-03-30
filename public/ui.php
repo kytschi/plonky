@@ -2,24 +2,26 @@
     <head>
         <style>
             html, body {
-                background-color: #414141;
-                color: #000;
+                background-color: #2F2F2F;
+                color: #fff;
                 font-family: Arial, Helvetica, sans-serif;
                 font-size: 14pt;
                 height: 100vh;
                 width: 100%;
-                padding: 10px;
+                padding: 20px;
                 margin: 0;
-                overflow-x: hidden;
+                overflow: hidden;
             }
             body {
                 display: grid;
+                width: calc(100% - 80px);
+                height: calc(100vh - 80px);
                 grid-template-columns: 400px calc(100% - 460px);
                 grid-template-rows: auto;
                 grid-template-areas: 
                     'project'
                     'main';
-                column-gap: 20px;
+                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
             }
             .alert {
                 position: fixed;
@@ -44,43 +46,44 @@
                 height: 100vh;
                 grid-template-columns: auto;
                 display: grid;
-                background-color: #fff;
+                background-color: #2F2F2F;
+                border-right: 1px solid #2B2B2B;
                 overflow-x: hidden;
                 grid-template-rows: minmax(100px, max-content);
             }
-
             main {
                 height: 100vh;
-                background-color: #fff;
+                width: 100%;
                 overflow-x: hidden;
+                padding: 20px;
             }
             .project {
                 margin-bottom: 20px;
             }
             .project-collections {
-                border-bottom: 1px solid #531fba;
+                
             }
             .project-collection {
                 display: grid;
                 grid-template-columns: auto;
                 grid-template-rows: auto;
+                background-color: #363838;
             }
             .project-collection-toolbar {
                 min-height: 30px;
-                padding: 20px;
-                border-top: 1px solid #531fba;
+                padding: 20px;                
                 cursor: pointer;
             }
             .project-collection-items {
                 display: none;
-                background-color: #f2edfc;
                 font-size: 12pt;
                 cursor: pointer;
+                background-color: #2F2F2F;
             }
             .project-collection-item {
                 min-height: 30px;
                 padding: 20px;
-                border-top: 1px solid #531fba;
+                border-top: 1px solid #2B2B2B;
             }
             .project-collection-item .title {
                 float: left;
@@ -96,32 +99,32 @@
             }
             .project-title {
                 min-height: 30px;
-                background-color: #712CF9;
                 font-weight: bold;
                 color: #fff;
                 padding: 20px;
             }
             .toolbar {
                 height: 110px;
-                background-color: #712CF9;
-                border-bottom: 1px solid #531fba;
+                background-color: #2F2F2F;
             }
             .toolbar .button {
-                background: none;
-                width: 70px;
-                height: 70px;
-                padding: 10px;
-                margin-top: 20px;
-                margin-right: 20px;
-                border: 3px solid #fff;
-                border-radius: 10px;
+                border: 0;
+                width: 80px;
+                height: 80px;                
+                text-align: center;
+                margin-top: 5px;                
+                background-color: #008000 !important;
+                border-radius: 50%;
                 float: right;
-                cursor: pointer;
+                box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+                cursor: pointer;                
             }
             .toolbar .button svg {
                 fill: #fff;
-                width: 70%;
-                height: 70%;
+                width: 45px;
+                height: 45px;
+                margin-left: 5px;
+                margin-top: 2px;
             }
             .toolbar .title {
                 float: left;       
@@ -129,6 +132,7 @@
                 font-weight: bold;
                 margin: 20px;
                 color: #fff;
+                line-height:15pt;
             }
             .toolbar .title p, .project-collection-item .title p {
                 padding: 0;
@@ -150,13 +154,12 @@
                 display: none;
             }
             #quick-menu .button, #quick-menu-button .button {
-                background-color: #712CF9;
+                background-color: #E17076;
                 height: 80px;
                 width: 80px;
                 border-radius: 50%;
                 text-align: center;
                 cursor: pointer;
-                border: 3px solid #530be2;
                 box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
             }
             #quick-menu .button {
@@ -186,15 +189,13 @@
                 width: 33%;
                 max-width: 500px;
                 transform: translate(-50%, -50%);
-                background-color: #fff;
+                background-color: #2F2F2F;
                 display: grid;
                 grid-template-columns: auto;
                 grid-template-rows: auto;
             }
             .box-title {
                 color: #fff;
-                background-color: #712CF9;
-                border-bottom: 1px solid #531fba;
                 padding: 20px;
             }
             .box-content {
@@ -206,7 +207,7 @@
             .box-footer button {
                 float: right;
                 margin-left: 10px;
-                background-color: #712CF9;
+                background-color: #008000;
                 color: #fff;
                 border: 0;
                 padding: 15px 20px;
@@ -215,6 +216,11 @@
             .button-cancel {
                 background-color: #ccc !important;
                 color: #000 !important;
+            }
+            input, select {
+                background-color: #3D3C3C;
+                color: #7A8389;
+                border: 0;
             }
             .input-group {
                 display: grid;
@@ -235,18 +241,20 @@
                     'request-type'
                     'request-url';
                 column-gap: 20px;
-                padding: 20px;
-                border-bottom: 1px solid #531fba;
+                padding-bottom: 20px;
                 height: 50px;
             }
+            #request-type-info {
+                color: #20AB61;
+            }
             .tabs {
-                background-color: #712CF9;
+                background-color: #3D3C3C;
                 color: #fff;
                 height: 60px;
                 overflow-x: hidden;
                 float: left;
                 width: 100%;
-                border-top: 1px solid #531fba;
+                overflow: hidden;
             }
             .tab {
                 float: left;
@@ -287,8 +295,7 @@
                 width: 100%;
                 height: 100%;
                 height: 60px;
-                background-color: #9c6ff7;
-                border-bottom: 1px solid #531fba;
+                background-color: #008000 !important;
             }
             .tab-content-toolbar .button {
                 width: 30px;
@@ -304,7 +311,7 @@
                 height: 100%;
             }
             .selected {
-                background-color: #9c6ff7 !important;
+                background-color: #008000 !important;
             }
         </style>
     </head>
@@ -333,7 +340,7 @@
                 </div>
                 <button class='button' name='send' title='Fire the request off' type='submit'>
                     <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
-                        <path d='M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z'/>
+                        <path d='M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z'/>
                     </svg>
                 </button>
             </div>

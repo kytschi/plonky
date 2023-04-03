@@ -8,20 +8,11 @@
                 font-size: 14pt;
                 height: 100vh;
                 width: 100%;
-                padding: 20px;
                 margin: 0;
                 overflow: hidden;
             }
-            body {
-                display: grid;
-                width: calc(100% - 80px);
-                height: calc(100vh - 80px);
-                grid-template-columns: 400px calc(100% - 460px);
-                grid-template-rows: auto;
-                grid-template-areas: 
-                    'project'
-                    'main';
-                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            html {
+                padding: 20px;
             }
             .alert {
                 position: fixed;
@@ -39,17 +30,36 @@
                 display: none;
                 cursor: pointer;
             }
+            body {
+                display: grid;
+                width: calc(100% - 40px);
+                height: calc(100vh - 40px);
+                grid-template-columns: 400px calc(100% - 440px);
+                grid-template-rows: auto;
+                grid-template-areas: 
+                    'project'
+                    'main';
+                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            }
             #error {
                 background-color: #ff3200;
             }
             #projects {
-                height: 100vh;
-                grid-template-columns: auto;
-                display: grid;
                 background-color: #2F2F2F;
                 border-right: 1px solid #2B2B2B;
-                overflow-x: hidden;
+                overflow-y: scroll;
+                padding-bottom: 110px;
+            }
+            #projects .toolbar {
+                position: absolute;
+                float: left;
+                width: 400px;
+            }
+            #projects-list {
+                margin-top: 110px;
+                grid-template-columns: auto;
                 grid-template-rows: minmax(100px, max-content);
+                display: grid;
             }
             main {
                 height: 100vh;
@@ -60,19 +70,16 @@
             .project {
                 margin-bottom: 20px;
             }
-            .project-collections {
-                
-            }
             .project-collection {
                 display: grid;
                 grid-template-columns: auto;
-                grid-template-rows: auto;
+                grid-template-rows: max-content;
                 background-color: #363838;
+                border-top: 1px solid #2B2B2B;
             }
             .project-collection-toolbar {
                 min-height: 30px;
-                padding: 20px;                
-                cursor: pointer;
+                padding: 20px;
             }
             .project-collection-items {
                 display: none;
@@ -83,10 +90,15 @@
             .project-collection-item {
                 min-height: 30px;
                 padding: 20px;
-                border-top: 1px solid #2B2B2B;
+                border-bottom: 1px solid #2B2B2B;
+                border-left: 1px solid #2B2B2B;
+                border-right: 1px solid #2B2B2B;
             }
             .project-collection-item .title {
                 float: left;
+            }
+            .project-collection-item .title span {
+                color: #20AB61;
             }
             .project-collection-toolbar span, .project-title span {
                 float: left;
@@ -221,6 +233,7 @@
                 background-color: #3D3C3C;
                 color: #7A8389;
                 border: 0;
+                padding: 10px;
             }
             .input-group {
                 display: grid;
@@ -278,11 +291,12 @@
                 float: left;
                 width: 100%;
                 height: 100%;
-                padding: 20px;
+                margin-top: 40px;
+                margin-bottom: 40px;
             }
             .list-item {
                 display: grid;
-                grid-template-columns: 30px 50% calc(50% - 110px);
+                grid-template-columns: 30px calc(50% - 35px) calc(50% - 35px);
                 grid-template-rows: 50px;
                 grid-template-areas: 
                     '.list-checkbox'
@@ -312,6 +326,11 @@
             }
             .selected {
                 background-color: #008000 !important;
+            }
+            .button-grow, .button-shrink  {
+                float: left !important;
+                margin-right: 10px;
+                margin-left: 0 !important;
             }
         </style>
     </head>
@@ -533,7 +552,7 @@
                     projects[project_key].name = document.getElementById('project-name').value;
                     project_key = null;
                     buildProjectsList();
-                    showAlert('Project updated, don\'t forget to save!');
+                    showAlert('Project updated, do not forget to save!');
                 } else {
                     project_key = key;
                     document.getElementById('project-name').value = projects[project_key].name;
@@ -599,31 +618,37 @@
                     if (!key) {
                         project_key = key;
                     }
-                    html += '<div id=\'project-' + key + '\' class=\'project\' onclick=\'selectProject(' + key + ');\'>';
-                        html += '<div class=\'project-title' + (!project_key ? ' selected' : '') + '\'>';
+                    html += "<div id='project-" + key + "' class='project' onclick='selectProject(" + key + ");'>";
+                        html += "<div class='project-title" + (!project_key ? ' selected' : '') + "'>";
                         html += '<span>' + project.name + '</span>';
-                        html += '<div onclick=\'editProject("' + key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\'/></svg></div>';
-                        html += '<div onclick=\'deleteProject("' + key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\'/></svg></div>';
+                        html += "<div onclick='editProject(" + key + ")' ";
+                        html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z'/></svg></div>";
+                        html += "<div onclick='deleteProject(" + key + ")' ";
+                        html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></div>";
                         html += '</div>';
-                        html += '<div class=\'project-collections\'>';
+                        html += "<div class='project-collections'>";
                         project.collections.forEach(function(collection, col_key) {
-                            html += '<div id=\'collection-' + col_key + '\' class=\'project-collection\' onclick=\'collection_key=' + col_key + '\'>';
-                                html += '<div class=\'project-collection-toolbar\'>';
-                                    html += '<span>' + collection.name + '</span>';
+                            html += "<div id='collection-" + col_key + "' class='project-collection' onclick='collection_key=" + col_key + "'>";
+                                html += "<div class='project-collection-toolbar'>";
                                     if (collection.items.length != 0) {
-                                        html += '<div onclick=\'growCollection(\"' + col_key + '\")\' class=\'button-grow button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path fill-rule=\'evenodd\' d=\'M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z\'/></svg></div>';
-                                        html += '<div onclick=\'shrinkCollection(\"' + col_key + '\")\' class=\'button-shrink button hide\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path fill-rule=\'evenodd\' d=\'M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z\'/></svg></div>';
+                                        html += "<div onclick='growCollection(" + col_key + ")' ";
+                                        html += "class='button-grow button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg></div>";
+                                        html += "<div onclick='shrinkCollection(" + col_key + ")' ";
+                                        html += "class='button-shrink button hide'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/></svg></div>";
                                     }
-                                    html += '<div onclick=\'deleteCollection("' + col_key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\'/></svg></div>';
+                                    html += '<span>' + collection.name + '</span>';
+                                    html += "<div onclick='deleteCollection(" + col_key + ")' ";
+                                    html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></div>";
                                 html += '</div>';
-                                html += '<div id=\'collection-items-' + col_key + '\' class=\'project-collection-items\'>';
+                                html += "<div id='collection-items-" + col_key + "' class='project-collection-items'>";
                                 collection.items.forEach(function(item, item_key) {
-                                    html += '<div class=\'project-collection-item\' onclick="selectCollectionItem(\'' + item_key + '\')">';
-                                        html += '<div class=\'title\'>';
+                                    html += "<div class='project-collection-item' onclick='selectCollectionItem(" + item_key + ")'>";
+                                        html += "<div class='title'>";
                                             html += '<p>' + item.name + '</p>';
                                             html += '<span>' + item.type + '</span>';
                                         html += '</div>';
-                                        html += '<div onclick=\'deleteItem("' + item_key + '")\' class=\'button\'><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'currentColor\' viewBox=\'0 0 16 16\'><path d=\'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\'/></svg></div>';
+                                        html += "<div onclick='deleteItem(" + item_key + ")' ";
+                                        html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></div>";
                                     html += '</div>';
                                 });
                                 html += '</div>';
@@ -643,10 +668,10 @@
                 var html = "";
                 try {
                     projects[key].globals.forEach(function(element, item_key) {
-                        html += '<div class=\'list-item\'>';
-                            html += '<input type=\'checkbox\' class=\'list-checkbox\'' + (element.active ? ' checked=\'checked\'' : '') + '/>';
-                            html += '<input type=\'text\' value=\'' + element.key + '\' class=\'list-text\'/>';
-                            html += '<input type=\'text\' value=\'' + element.value + '\' class=\'list-text\'/>';
+                        html += "<div class='list-item'>";
+                            html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + "\>";
+                            html += "<input type='text' value='" + element.key + "' class='list-text'/>";
+                            html += "<input type='text' value='" + element.value + "' class='list-text'/>";
                         html += '</div>';
                     });
                 } catch (err) {
@@ -664,10 +689,10 @@
                 var html = "";
                 try {
                     item.params.forEach(function(element, item_key) {
-                        html += '<div class=\'list-item\'>';
-                            html += '<input type=\'checkbox\' class=\'list-checkbox\'' + (element.active ? ' checked=\'checked\'' : '') + '/>';
-                            html += '<input type=\'text\' value=\'' + element.key + '\' class=\'list-text\'/>';
-                            html += '<input type=\'text\' value=\'' + element.value + '\' class=\'list-text\'/>';
+                        html += "<div class='list-item'>";
+                            html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + "/>";
+                            html += "<input type='text' value='" + element.key + "' class='list-text'/>";
+                            html += "<input type='text' value='" + element.value + "' class='list-text'/>";
                         html += '</div>';
                     });
                 } catch (err) {

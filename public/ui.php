@@ -62,7 +62,7 @@
                 display: grid;
             }
             main {
-                height: 100vh;
+                height: calc(100% - 20px);
                 width: 100%;
                 overflow-x: hidden;
                 padding: 20px;
@@ -294,14 +294,19 @@
             }
             .list {
                 float: left;
-                width: calc(100% - 40px);
+                width: 100%;
                 height: 100%;
+            }
+            .request-tab-content .content, .response-tab-content .content {
                 padding: 0 20px 0 20px;
                 background-color: #464746;
                 border-bottom: 1px solid #2B2B2B;
                 border-left: 1px solid #2B2B2B;
                 border-right: 1px solid #2B2B2B;
-            }
+                float: left;
+                width: calc(100% - 40px);
+                height: 100%;
+            }      
             .list-item {
                 display: grid;
                 grid-template-columns: 30px calc(50% - 35px) calc(50% - 35px);
@@ -437,16 +442,24 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id='request-params' class='list'></div>
+                        <div class='content'>
+                            <div id='request-params' class='list'></div>
+                        </div>
                     </div>
                     <div id='request-tab-content-auth' class='tab-content request-tab-content hide'>
-                        <p>To come</p>
+                        <div class='content'>
+                            <p>To come</p>
+                        </div>
                     </div>
                     <div id='request-tab-content-headers' class='tab-content request-tab-content hide'>
-                        <p>To come</p>
+                        <div class='content'>
+                            <p>To come</p>
+                        </div>
                     </div>
                     <div id='request-tab-content-body' class='tab-content request-tab-content hide'>
-                        <p>To come</p>
+                        <div class='content'>
+                            <p>To come</p>
+                        </div>
                     </div>
                     <div id='request-tab-content-globals' class='tab-content request-tab-content hide'>
                         <div class='tab-content-toolbar'>
@@ -458,7 +471,9 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id='request-globals' class='list'></div>
+                        <div class='content'>
+                            <div id='request-globals' class='list'></div>
+                        </div>
                     </div>
                 </div>
                 <textarea id='projects-json' class='hide'></textarea>
@@ -469,10 +484,14 @@
             </div>
             <div id='response-tabs-content' class='tabs-content'>
                 <div id='response-tab-content-response' class='tab-content response-tab-content'>
-                    <p>To come</p>
+                    <div class='content'>
+                        <p>To come</p>
+                    </div>
                 </div>
                 <div id='response-tab-content-headers' class='tab-content response-tab-content hide'>
-                    <p>To come</p>
+                    <div class='content'>
+                        <p>To come</p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -599,7 +618,7 @@
                     'value': '',
                     'active': true
                 };
-                var html = createParam(element);
+                var html = createParam(element, 'params');
                 document.getElementById('request-params').innerHTML += html;
                 try {
                     projects[project_key].collections[collection_key].items[collection_item_key].params.push(element);
@@ -611,15 +630,73 @@
                 projectMarkUpdated();
             }
             function addGlobal() {
+                if (project_key === null) {
+                    showAlert('Please select a project', 'error');
+                    return;
+                }
 
+                var element = {
+                    'id': uuid(),
+                    'key': '',
+                    'value': '',
+                    'active': true
+                };
+                var html = createParam(element, 'globals');
+                document.getElementById('request-globals').innerHTML += html;
+                try {
+                    projects[project_key].globals.push(element);
+                } catch(err) {
+                    projects[project_key].globals = [];
+                    projects[project_key].globals.push(element);
+                }
+                document.getElementById('projects-json').text = JSON.stringify(projects);
+                projectMarkUpdated();
             }
-            function createParam(element) {
+            function createParam(element, source) {
                 html = "<div id='" + element.id + "' class='list-item'>";
-                    html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + "/>";
-                    html += "<input type='text' value='" + element.key + "' class='list-text'/>";
-                    html += "<input type='text' value='" + element.value + "' class='list-text'/>";
+                    html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + " onchange='updateParamActive(this, \"" + element.id + "\", \"" + source + "\")'/>";
+                    html += "<input type='text' value='" + element.key + "' class='list-text' onkeyup='updateParam(this, \"" + element.id + "\", \"key\", \"" + source + "\")'/>";
+                    html += "<input type='text' value='" + element.value + "' class='list-text' onkeyup='updateParam(this, \"" + element.id + "\", \"value\", \"" + source + "\")'/>";
                 html += '</div>';
                 return html;
+            }
+            function updateParam(element, id, type, source) {
+                if (source == 'params') {
+                    projects[project_key].collections[collection_key].items[collection_item_key].params.forEach(function(item) {
+                        if (item.id == id) {
+                            item[type] = element.value;
+                            return;
+                        }
+                    });
+                    return;
+                } else if (source == 'globals') {
+                    projects[project_key].globals.forEach(function(item) {
+                        if (item.id == id) {
+                            item[type] = element.value;
+                            return;
+                        }
+                    });
+                    return;
+                }
+            }
+            function updateParamActive(element, id, source) {
+                if (source == 'params') {
+                    projects[project_key].collections[collection_key].items[collection_item_key].params.forEach(function(item) {
+                        if (item.id == id) {
+                            item.active = element.checked;
+                            return;
+                        }
+                    });
+                    return;
+                } else if (source == 'globals') {
+                    projects[project_key].globals.forEach(function(item) {
+                        if (item.id == id) {
+                            item[type] = element.checked;
+                            return;
+                        }
+                    });
+                    return;
+                }
             }
             function editProject(key) {
                 if (key === true) {
@@ -745,7 +822,7 @@
                 var html = "";
                 try {
                     projects[key].globals.forEach(function(element, item_key) {
-                        html += createParam(element);
+                        html += createParam(element, 'globals');
                     });
                 } catch (err) {
                     // Do nothing
@@ -769,7 +846,7 @@
                 document.getElementById('project-collection-item-' + collection_key + '-' + key).classList.add('selected');
                 try {
                     item.params.forEach(function(element, item_key) {
-                        html += createParam(element);
+                        html += createParam(element, 'params');
                     });
                 } catch (err) {
                     // Do nothing

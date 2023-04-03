@@ -24,7 +24,7 @@
                 margin: 0 auto;
                 display: grid;
                 border-radius: 10px;
-                background-color: #712CF9;
+                background-color: #008000;
                 padding: 20px;
                 color: #fff;
                 display: none;
@@ -104,6 +104,9 @@
                 float: left;
                 width: 60%;
             }
+            .project-collection-toolbar span {
+                cursor: pointer;
+            }
             .project-collection-toolbar .button, .project-title .button, .project-collection-item .button {
                 float: right;
                 margin-left: 10px;
@@ -166,13 +169,13 @@
                 display: none;
             }
             #quick-menu .button, #quick-menu-button .button {
-                background-color: #E17076;
+                background-color: #008000;
                 height: 80px;
                 width: 80px;
                 border-radius: 50%;
                 text-align: center;
                 cursor: pointer;
-                box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
             }
             #quick-menu .button {
                 margin-bottom: 10px;
@@ -231,7 +234,7 @@
             }
             input, select {
                 background-color: #3D3C3C;
-                color: #7A8389;
+                color: #fff;
                 border: 0;
                 padding: 10px;
             }
@@ -281,18 +284,23 @@
                 display: grid;
                 grid-template-columns: auto;
                 grid-template-rows: max-content;
+                margin-bottom: 20px;
             }
             .tab-content {
                 float: left;
                 width: 100%;
                 height: 100%;
+                overflow: hidden;
             }
             .list {
                 float: left;
-                width: 100%;
+                width: calc(100% - 40px);
                 height: 100%;
-                margin-top: 40px;
-                margin-bottom: 40px;
+                padding: 0 20px 0 20px;
+                background-color: #464746;
+                border-bottom: 1px solid #2B2B2B;
+                border-left: 1px solid #2B2B2B;
+                border-right: 1px solid #2B2B2B;
             }
             .list-item {
                 display: grid;
@@ -302,7 +310,9 @@
                     '.list-checkbox'
                     '.list-text'
                     '.list-text';
-                column-gap: 20px;                
+                column-gap: 20px;
+                margin-top: 20px;
+                margin-bottom: 20px;
             }
             .tab-content-toolbar {
                 float: left;
@@ -327,10 +337,32 @@
             .selected {
                 background-color: #008000 !important;
             }
+            .project-collection-item.selected {
+                background-color: #1f4213 !important;
+            }
             .button-grow, .button-shrink  {
                 float: left !important;
                 margin-right: 10px;
                 margin-left: 0 !important;
+            }
+            .icon {
+                width: 100%;
+                padding: 10px;
+                font-size: 20pt;
+                font-weight: bold;
+                color: #fff;
+                line-height:15pt;
+            }
+            .icon img, .icon span {
+                float: left;
+            }
+            .icon span {
+                margin: 30px;
+            }
+            .icon img {
+                width: 80px;
+                height: 80px;
+                fill: #fff;
             }
         </style>
     </head>
@@ -347,7 +379,10 @@
         ?>        
         <div id='projects'>
             <div class='toolbar'>
-                <div class='title'>Plonky</div>
+                <div class='icon'>
+                    <img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAMAAABrrFhUAAADAFBMVEVHcEyYLGEAAACWQ3aXLGGYLGGXK2AAAABqOWxwPl2ZS3OYLGEAAAAAAACYLGGYKmIAAACPKVsAAACYK2ERCA6ZLGGXK2AAAACYLGEAAAAAAACYLWCYLGFTcJhTcJiYLGGZLGEAAACZK2GYK2GYLGEnDBpXcpeXK2BTcJhSb5eYLGHBdYtTcJiYLGGXLGFTb5d5I01Tb5eYLGGYLGGbMGViHD6Pj488ESaYLGFTb5dVcJdxIEhNFjGLKFlUb5hLZYmYLGGJJ1dYc5eDJVR3THuYK2Gtf4yPj4+GJlWPj49bGjoAAABScJhTcJg+VHGPj4/eYodqH0OYLGGYLGB9JFCPj4+Pj49Tb5gwQViBJVJWbJWPj4/eY4ePj48fKjmPj49nHULeYoePj49EXH3eYofeYoffYobeYoffYojeYodHX4LeYojfYYeONmneYofeYofeYofdYodsWIWYLGHeYof/obSetthTcJiPj4/a2tra6v////+bL2OaLWLPVn/+n7PLU3ykNWjbX4XSWYDETnm4RXKhNGbdYYbHUHudMGS1QnGqOmunN2m+SXafMWWtPGz8nLC7R3TgZIjWW4PhZ4uwPm7dYofcYIbZXYT6l62yQG/sfJrxhqH2j6fjao3nc5PqeJfvgZ7lb5C8vLyMpcibs9TBTHj0i6T4k6qkOmtgfKOVjpDYdJRphav49feEnsKdq83FX4V9lrvQ4fjhf5zIaYpYdZ2xsbHX19friqSUrc+jo6OVnqzQa45qfJVjdpbFxcVbeKB1j7W90eyqqqrOzs6bNWirweCpP27wkKiyS3h2gpPDhKRnYoycPW9tiK7mhaGuRXNxjLHz7/G7dZiYmJhkgKekR3bUZIjzlazv5+vp4OSfZI6EZY62yueSl56dnsSenp7as8a4ZozHl7Xgvs+XL2PG2fLmy9h3bpa7U32VT3+YqLyqgIxdbJWCiJHLW4KXcZuLjrWwXYbHuNaUg6yJOm3U2PDPyeTEqMmaj7e6wd+sZpG0RXLaAGAAF2v+TFR0AAABAHRSTlMA/CgLLfjzTAIGD8g9IrIVG+I32lNC7RK9C0Yl5vKG03subUqiXRkdoeZlHblejNqt+XSbOIxMaYMrZZ921XLRW882wf1SLWnI9oQxyVeg2nSVk1a1gZtGgLxMuUzqZ6qQ0si0qLGWhp3gv8nU/ebZ2tWu//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8o9RGlbwAAIABJREFUeNrsW1tMVNcadsIlIybwQCAkIBIhIigSsA/oAzFGfbIJ0QcT44uJlzZtTs/Jno3JODdgBoFhGGaAkWGAmSEItEE9yrGJvjSVBE4bpK2SYr3lxAtqTIyXalvbk5y19lpr77WvsznJlkmc/4HM7Nl7s/9v/f/339ZetSolKUlJSlKSkpSkJCUpSUlKklPy6rILtlalfajq789lGBPDMPlVH6T65dkML1s+ROvPZygpTZKnSqvfXF1Rsbn4QNb/e4esTXt0uXSlidafyTUng/rmDdUniFRv3L5t2Q+16fg/LED+fnxTojNrGYnsTgoD2HxCJGuXZwpZn4QsWELHtc2gkujd5Gtr5T6sSQoA1p6Qi25TOPSphZLPtYwgD9u/PXDKYmlDnwuTAQDoAVevXDl//Su5KWxIpH/IIpIj6qfmFCGd2x2ctSATqEsGDigGyn59phHIvcbzZ79elil8+sXhv4kQUDeBAqR/Vws60YdoMBksYAP0gasQgGmrdWp6VskUDqqYAtR3UwOFQYPaf6nC698cj3In9qDv5clgAvVQyysQASsnAITRi8sxhdUNhwkAx9RCLXIA+00nG0dnNnEHKpPBBFZXAAXPQgAeW4kAEK4sxxQOHQlpWkAdWvAXTpYA4OEOZCdFHPgYajcKAJi1UgIROaPfFNIOHfvss2MqgTAnk1PXG2ZZNoYAcHBHMpMiF1q1Fyj2FVR4SgIAJzpNQUuVfcgAIkB/dhgBcNrGHUpPCgB2Qq0uwjhAATDbSImyKWzQ62TIAALAAdhuQhde7tiO5CgHNpJQqAYANoWrYlOo2a7v9rsRA8ahAcQJAIgEtiYHAHwofKwFgNwUarbpun22YADEA0gymBzZ8KpVxTgUziYCQGIKxbrKzUyBASb4lAFlAvlJAgAfCgUavNeoKWdGz+oFYAenqr8bAhARkibEgsnSGiOh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'/>
+                    <span>Plonky</span>
+                </div>
             </div>
             <div id='projects-list'></div>
         </div>
@@ -363,7 +398,7 @@
                     </svg>
                 </button>
             </div>
-            <form id='send-form' method='post'>
+            <form id='save-form' method='post'>
                 <div id='request-url-box'>
                     <select id='request-type' name='request_type'>
                         <option value='GET'>GET</option>
@@ -394,7 +429,7 @@
                 <div id='request-tabs-content' class='tabs-content'>
                     <div id='request-tab-content-params' class='tab-content request-tab-content'>
                         <div class='tab-content-toolbar'>
-                            <div class='button' title='Add request parameter'>
+                            <div class='button' title='Add request parameter' onclick='addRequestParam()'>
                                 <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
                                     <path fill-rule='evenodd' d='M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z'/>
                                     <path d='M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z'/>
@@ -415,7 +450,7 @@
                     </div>
                     <div id='request-tab-content-globals' class='tab-content request-tab-content hide'>
                         <div class='tab-content-toolbar'>
-                            <div class='button' title='Add request global'>
+                            <div class='button' title='Add request global' onclick='addGlobal()'>
                                 <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
                                     <path fill-rule='evenodd' d='M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z'/>
                                     <path d='M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z'/>
@@ -426,6 +461,7 @@
                         <div id='request-globals' class='list'></div>
                     </div>
                 </div>
+                <textarea id='projects-json' class='hide'></textarea>
             </form>
             <div id='response-tabs' class='tabs'>
                 <div id='response-tab-response' class='tab response-tab selected' onclick='showTab("response", "response")'>Response</div>
@@ -533,9 +569,6 @@
                 </div>
             </div>
         </div>
-        <form id='save-form' method='post' class='hide'>
-            <textarea id='projects-json'></textarea>
-        </form>
         <script type='text/javascript'>
             try {
                 var projects = <?= json_encode($projects); ?>;
@@ -546,12 +579,54 @@
                 showAlert('Failed to load the projects', 'error');
                 console.log(err);
             }
+            function uuid() {
+                return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                );
+            }
+            function projectMarkUpdated() {
+                document.getElementById('project-title-' + project_key).innerHTML = projects[project_key].name + '*';
+            }
+            function addRequestParam() {
+                if (collection_key === null) {
+                    showAlert('Please select a project request', 'error');
+                    return;
+                }
+
+                var element = {
+                    'id': uuid(),
+                    'key': '',
+                    'value': '',
+                    'active': true
+                };
+                var html = createParam(element);
+                document.getElementById('request-params').innerHTML += html;
+                try {
+                    projects[project_key].collections[collection_key].items[collection_item_key].params.push(element);
+                } catch(err) {
+                    projects[project_key].collections[collection_key].items[collection_item_key].params = [];
+                    projects[project_key].collections[collection_key].items[collection_item_key].params.push(element);
+                }
+                document.getElementById('projects-json').text = JSON.stringify(projects);
+                projectMarkUpdated();
+            }
+            function addGlobal() {
+
+            }
+            function createParam(element) {
+                html = "<div id='" + element.id + "' class='list-item'>";
+                    html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + "/>";
+                    html += "<input type='text' value='" + element.key + "' class='list-text'/>";
+                    html += "<input type='text' value='" + element.value + "' class='list-text'/>";
+                html += '</div>';
+                return html;
+            }
             function editProject(key) {
                 if (key === true) {
                     document.getElementById('edit-project').style.display = 'none';
                     projects[project_key].name = document.getElementById('project-name').value;
-                    project_key = null;
                     buildProjectsList();
+                    projectMarkUpdated();
                     showAlert('Project updated, do not forget to save!');
                 } else {
                     project_key = key;
@@ -565,6 +640,7 @@
                     projects[project_key].collections[collection_key]['items'].splice(collection_item_key, 1);
                     collection_item_key = null;
                     buildProjectsList();
+                    projectMarkUpdated();
                     showAlert('Collection item has been deleted');
                 } else {
                     collection_item_key = key;
@@ -577,6 +653,7 @@
                     projects[project_key].collections.splice(collection_key, 1);
                     collection_key = null;
                     buildProjectsList();
+                    projectMarkUpdated();
                     showAlert('Collection has been deleted');
                 } else {
                     collection_key = key;
@@ -615,12 +692,12 @@
                 var html = '';
                 document.getElementById('projects-json').text = JSON.stringify(projects);
                 projects.forEach(function(project, key) {
-                    if (!key) {
+                    if (!key && project_key === null) {
                         project_key = key;
                     }
                     html += "<div id='project-" + key + "' class='project' onclick='selectProject(" + key + ");'>";
                         html += "<div class='project-title" + (!project_key ? ' selected' : '') + "'>";
-                        html += '<span>' + project.name + '</span>';
+                        html += "<span id='project-title-" + key + "'>" + project.name + '</span>';
                         html += "<div onclick='editProject(" + key + ")' ";
                         html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z'/></svg></div>";
                         html += "<div onclick='deleteProject(" + key + ")' ";
@@ -633,16 +710,16 @@
                                     if (collection.items.length != 0) {
                                         html += "<div onclick='growCollection(" + col_key + ")' ";
                                         html += "class='button-grow button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg></div>";
-                                        html += "<div onclick='shrinkCollection(" + col_key + ")' ";
+                                        html += "<div onclick='growCollection(" + col_key + ")' ";
                                         html += "class='button-shrink button hide'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/></svg></div>";
                                     }
-                                    html += '<span>' + collection.name + '</span>';
+                                    html += "<span onclick='growCollection(" + col_key + ")' >" + collection.name + '</span>';
                                     html += "<div onclick='deleteCollection(" + col_key + ")' ";
                                     html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></div>";
                                 html += '</div>';
                                 html += "<div id='collection-items-" + col_key + "' class='project-collection-items'>";
                                 collection.items.forEach(function(item, item_key) {
-                                    html += "<div class='project-collection-item' onclick='selectCollectionItem(" + item_key + ")'>";
+                                    html += "<div id='project-collection-item-" + col_key + '-' + item_key + "' class='project-collection-item' onclick='selectCollectionItem(" + item_key + ")'>";
                                         html += "<div class='title'>";
                                             html += '<p>' + item.name + '</p>';
                                             html += '<span>' + item.type + '</span>';
@@ -668,11 +745,7 @@
                 var html = "";
                 try {
                     projects[key].globals.forEach(function(element, item_key) {
-                        html += "<div class='list-item'>";
-                            html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + "\>";
-                            html += "<input type='text' value='" + element.key + "' class='list-text'/>";
-                            html += "<input type='text' value='" + element.value + "' class='list-text'/>";
-                        html += '</div>';
+                        html += createParam(element);
                     });
                 } catch (err) {
                     // Do nothing
@@ -680,23 +753,27 @@
                 document.getElementById('request-globals').innerHTML = html;
             }
             function selectCollectionItem(key) {
-                var item = projects[key].collections[collection_key].items[key];
+                var html = "";
+                collection_item_key = key;
+                var item = projects[project_key].collections[collection_key].items[key];
                 document.getElementById('request-name-info').innerHTML = item.name;
                 document.getElementById('request-type-info').innerHTML = item.type;
                 document.getElementById('request-type').value = item.type;
                 document.getElementById('request-url').value = item.url;
-
-                var html = "";
+                var elements = document.getElementsByClassName('project-collection-item');
+                if (elements) {
+                    for (var iLoop = 0; iLoop < elements.length; iLoop++) {
+                        elements[iLoop].classList.remove('selected');
+                    }
+                }
+                document.getElementById('project-collection-item-' + collection_key + '-' + key).classList.add('selected');
                 try {
                     item.params.forEach(function(element, item_key) {
-                        html += "<div class='list-item'>";
-                            html += "<input type='checkbox' class='list-checkbox'" + (element.active ? " checked='checked'" : '') + "/>";
-                            html += "<input type='text' value='" + element.key + "' class='list-text'/>";
-                            html += "<input type='text' value='" + element.value + "' class='list-text'/>";
-                        html += '</div>';
+                        html += createParam(element);
                     });
                 } catch (err) {
                     // Do nothing
+                    console.log(err);
                 }
                 document.getElementById('request-params').innerHTML = html;
             }
@@ -707,32 +784,24 @@
                         child.childNodes.forEach(function(button) {
                             if (button.className) {
                                 if (button.className.search('button-grow') != -1) {
-                                    button.classList.add('hide');
+                                    if (button.className.search('hide') != -1) {
+                                        button.classList.remove('hide');
+                                    } else {
+                                        button.classList.add('hide');
+                                        document.getElementById('collection-items-' + key).style.display = 'block';
+                                    }
                                 } else if (button.className.search('button-shrink') != -1) {
-                                    button.classList.remove('hide');
+                                    if (button.className.search('hide') != -1) {
+                                        button.classList.remove('hide');
+                                    } else {
+                                        button.classList.add('hide');
+                                        document.getElementById('collection-items-' + key).style.display = 'none';
+                                    }
                                 }
                             }
                         });
                     }
                 });
-                document.getElementById('collection-items-' + key).style.display = 'block';
-            }
-            function shrinkCollection(key) {    
-                var collection = document.getElementById('collection-' + key);
-                collection.childNodes.forEach(function(child) {
-                    if (child.className == 'project-collection-toolbar') {
-                        child.childNodes.forEach(function(button) {
-                            if (button.className) {
-                                if (button.className.search('button-shrink') != -1) {
-                                    button.classList.add('hide');
-                                } else if (button.className.search('button-grow') != -1) {
-                                    button.classList.remove('hide');
-                                }
-                            }
-                        });
-                    }
-                });            
-                document.getElementById('collection-items-' + key).style.display = 'none';
             }
             function showQuickMenu() {
                 if (document.getElementById('quick-menu').style.display == 'none') {

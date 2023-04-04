@@ -89,22 +89,26 @@ try {
         $url = $request->url;
         $iLoop = 0;
         while ($iLoop < count($project->globals)) {
-            $url = str_replace(
-                bracketCheck($project->globals[$iLoop]->key),
-                $project->globals[$iLoop]->value,
-                $url
-            );
-            $iLoop++;
+            if ($project->globals[$iLoop]->active) {
+                $url = str_replace(
+                    bracketCheck($project->globals[$iLoop]->key),
+                    $project->globals[$iLoop]->value,
+                    $url
+                );
+            }
+            $iLoop = $iLoop + 1;
         }
         if (!empty($request->params)) {
             $iLoop = 0;
             while ($iLoop < count($request->params)) {
-                $url = str_replace(
-                    bracketCheck($request->params[$iLoop]->key),
-                    $request->params[$iLoop]->value,
-                    $url
-                );
-                $iLoop++;
+                if ($request->params[$iLoop]->active) {
+                    $url = str_replace(
+                        bracketCheck($request->params[$iLoop]->key),
+                        $request->params[$iLoop]->value,
+                        $url
+                    );
+                }
+                $iLoop = $iLoop + 1;
             }
         }
         //var_dump($url);
@@ -206,7 +210,7 @@ try {
                 width: 400px;
             }
             #projects-list {
-                margin-top: 110px;
+                margin-top: 130px;
                 grid-template-columns: auto;
                 grid-template-rows: minmax(100px, max-content);
                 display: grid;
@@ -533,9 +537,9 @@ try {
                 font-weight: normal;
             }
             .icon img {
+                margin-top: 10px;
                 width: 80px;
                 height: 80px;
-                fill: #fff;
             }
             .row {
                 display: grid;
@@ -803,6 +807,25 @@ try {
                 </div>
             </div>
         </div>
+        <div id='edit-collection' class='popover hide'>
+            <div class='box'>
+                <div class='box-title'>
+                    <div class='icon'>
+                        <?= genTitle("Edit Collection"); ?>
+                    </div>
+                </div>
+                <div class='box-content'>
+                    <div class='input-group'>
+                        <span>Collection name</span>
+                        <input id='collection-name' name='name' value=''>
+                    </div>
+                </div>
+                <div class='box-footer'>
+                    <button onclick='editCollection(true)'>done</button>
+                    <button onclick='cancel("edit-collection")' class='button-cancel'>cancel</button>
+                </div>
+            </div>
+        </div>
         <div id='delete-project' class='popover hide'>
             <div class='box'>
                 <div class='box-title'>
@@ -854,9 +877,29 @@ try {
         <script type='text/javascript'>
             try {
                 var projects = <?= json_encode($projects); ?>;
-                var project_key = <?= isset($_POST['project_key']) ? intval($_POST['project_key']) : 'null'; ?>;
-                var collection_key = <?= isset($_POST['collection_key']) ? intval($_POST['collection_key']) : 'null'; ?>;;
-                var collection_item_key = <?= isset($_POST['collection_item_key']) ? intval($_POST['collection_item_key']) : 'null'; ?>;;
+                <?php
+                $key = null;
+                if (isset($_POST["project_key"])) {
+                    if ($_POST["project_key"] != "") {
+                        $key = intval($_POST["project_key"]);
+                    }
+                }
+                echo "var project_key = " . ($key === null ? "null" : $key) . ";";
+                $key = null;
+                if (isset($_POST["collection_key"])) {
+                    if ($_POST["collection_key"] != "") {
+                        $key = intval($_POST["collection_key"]);
+                    }
+                }
+                echo "var collection_key = " . ($key === null ? "null" : $key) . ";";
+                $key = null;
+                if (isset($_POST["collection_item_key"])) {
+                    if ($_POST["collection_item_key"] != "") {
+                        $key = intval($_POST["collection_item_key"]);
+                    }
+                }
+                echo "var collection_item_key = " . ($key === null ? "null" : $key) . ";";
+                ?>
             } catch (err) {
                 showAlert('Failed to load the projects', 'error');
                 console.log(err);
@@ -993,6 +1036,19 @@ try {
                     document.getElementById('edit-project').style.display = 'block';
                 }
             }
+            function editCollection(key) {
+                if (key === true) {
+                    document.getElementById('edit-collection').style.display = 'none';
+                    projects[project_key].collections[collection_key].name = document.getElementById('collection-name').value;
+                    buildProjectsList();
+                    projectMarkUpdated();
+                    showAlert('Project updated, do not forget to save!');
+                } else {
+                    collection_key = key;
+                    document.getElementById('collection-name').value = projects[project_key].collections[collection_key].name;
+                    document.getElementById('edit-collection').style.display = 'block';
+                }
+            }
             function deleteItem(key) {
                 if (key === true) {
                     document.getElementById('delete-item').style.display = 'none';
@@ -1058,7 +1114,7 @@ try {
                     html += "<div id='project-" + key + "' class='project' onclick='selectProject(" + key + ");'>";
                         html += "<div class='project-title" + (!project_key ? ' selected' : '') + "'>";
                         html += "<span id='project-title-" + key + "'>" + project.name + '</span>';
-                        html += "<div onclick='editProject(" + key + ")' ";
+                        html += "<div title='Edit the project' onclick='editProject(" + key + ")' ";
                         html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z'/></svg></div>";
                         html += "<div onclick='deleteProject(" + key + ")' ";
                         html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></div>";
@@ -1074,6 +1130,8 @@ try {
                                         html += "class='button-shrink button hide'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/></svg></div>";
                                     }
                                     html += "<span onclick='growCollection(" + col_key + ")' >" + collection.name + '</span>';
+                                    html += "<div title='Edit the collection' onclick='editCollection(" + col_key + ")' ";
+                                    html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z'/></svg></div>";
                                     html += "<div onclick='deleteCollection(" + col_key + ")' ";
                                     html += "class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></div>";
                                 html += '</div>';

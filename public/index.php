@@ -27,19 +27,25 @@ use Plonky\Plonky;
 use Plonky\Exceptions\Exception;
 
 try {
-    /**
-     * projects_folder => if not supplied the default is the projects folder.
-     *
-     * save_mode => enable the ability to save or not. Handy if you just want people 
-     *              to be able to hit up your API without being able to take the actual 
-     *              project's data.
-     */
-    new Plonky(
-        [
-            'projects_folder' => '../projects',
-            'save_mode' => true
-        ]
-    );
+    //Test api.
+    if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+        var_dump('api');
+        die();
+    } else {
+        /**
+         * projects_folder => if not supplied the default is the projects folder.
+         *
+         * save_mode => enable the ability to save or not. Handy if you just want people 
+         *              to be able to hit up your API without being able to take the actual 
+         *              project's data.
+         */
+        new Plonky(
+            [
+                'projects_folder' => '../projects',
+                'save_mode' => true
+            ]
+        );
+    }
 } catch (\Exception $err) {
     (new Exception($err->getMessage()))->fatal();
 }

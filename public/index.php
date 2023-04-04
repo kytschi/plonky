@@ -37,7 +37,7 @@ try {
     new Plonky(
         [
             'projects_folder' => '../projects',
-            'save_mode' => false
+            'save_mode' => true
         ]
     );
 } catch (\Exception $err) {

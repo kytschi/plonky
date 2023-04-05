@@ -38,11 +38,15 @@ try {
          * save_mode => enable the ability to save or not. Handy if you just want people 
          *              to be able to hit up your API without being able to take the actual 
          *              project's data.
+         *
+         * demo_mode => enable demo mode which means you can not hit any live urls and 
+         *              the response data will be demo data.
          */
         new Plonky(
             [
                 'projects_folder' => '../projects',
-                'save_mode' => true
+                'save_mode' => true,
+                'demo_mode' => true
             ]
         );
     }

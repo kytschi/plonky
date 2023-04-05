@@ -211,10 +211,15 @@ class Style
         }
         #quick-menu {
             position: fixed;
-            right: 30px;
+            right: 35px;
             bottom: 120px;
             width: 80px;
             display: none;
+        }
+        #btn-send {
+            position: fixed;
+            right: 35px;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
         }
         #quick-menu .button, #quick-menu-button .button {
             background-color: #DE6287;
@@ -361,15 +366,20 @@ class Style
         }      
         .list-item {
             display: grid;
-            grid-template-columns: 30px calc(50% - 35px) calc(50% - 35px);
+            grid-template-columns: 30px calc(50% - 55px) calc(50% - 55px) 20px;
             grid-template-rows: 50px;
             grid-template-areas: 
                 '.list-checkbox'
                 '.list-text'
-                '.list-text';
+                '.list-text'
+                '.button';
             column-gap: 20px;
             margin-top: 20px;
             margin-bottom: 20px;
+        }
+        .list-item .button {
+            margin-top: 10px;
+            cursor: pointer;
         }
         .tab-content-toolbar {
             float: left;
@@ -410,6 +420,7 @@ class Style
         }
         pre {
             color: #fff;
+            font-weight: bold;
         }
         .icon {
             width: 100%;

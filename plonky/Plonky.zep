@@ -33,12 +33,18 @@ class Plonky
     private projects = [];
     private save_mode = true;
     private projects_folder = "";
+
+    private response = null;
+
+    private gfx;
     private version = "0.0.1 alpha";
 
     public function __construct(array cfg = [])
 	{
         var files, file, err, project;
         let project = new \stdClass();
+
+        let this->gfx = new Gfx();
 
         define("VERSION", this->version);
 
@@ -59,7 +65,7 @@ class Plonky
 
             if (isset(_POST["send_request"])) {
                 if (!empty(_POST["send_request"])) {
-                    this->send();
+                    this->send(cfg);
                 }
             } elseif (isset(cfg["save_mode"])) {
                 this->save();
@@ -92,14 +98,11 @@ class Plonky
 
     private function build()
     {
-        var gfx;
-        let gfx = new Gfx();
-
         echo "<!DOCTYPE html><html lang='en'><head>";
         (new Style())->build();
         echo "</head><body><div id='projects'>
             <div class='toolbar'>
-                <div class='icon' onclick='showAbout()'>" . gfx->genTitle("Plonky", "a drunken app") . "</div>
+                <div class='icon' onclick='showAbout()'>" . this->gfx->genTitle("Plonky", "a drunken app") . "</div>
             </div>
             <div id='projects-list'></div>
         </div>
@@ -109,7 +112,7 @@ class Plonky
                     <p id='request-name-info'>Request</p>
                     <span id='request-type-info'>GET</span>
                 </div>
-                <button class='button' name='send' title='Fire the request off' type='button' onclick='send()'>
+                <button id='btn-send' class='button' name='send' title='Fire the request off' type='button' onclick='send()'>
                     <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
                         <path d='M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z'/>
                     </svg>
@@ -155,17 +158,17 @@ class Plonky
                             </div>
                         </div>
                         <div class='content'>
-                            <div id='request-params' class='list'>" . gfx->selectSomething() . "</div>
+                            <div id='request-params' class='list'>" . this->gfx->selectSomething() . "</div>
                         </div>
                     </div>
                     <div id='request-tab-content-auth' class='tab-content request-tab-content hide'>
-                        <div class='content'>" . gfx->toDo() . "</div>
+                        <div class='content'>" . this->gfx->toDo() . "</div>
                     </div>
                     <div id='request-tab-content-headers' class='tab-content request-tab-content hide'>
-                        <div class='content'>" . gfx->toDo() . "</div>
+                        <div class='content'>" . this->gfx->toDo() . "</div>
                     </div>
                     <div id='request-tab-content-body' class='tab-content request-tab-content hide'>
-                        <div class='content'>" . gfx->toDo() . "</div>
+                        <div class='content'>" . this->gfx->toDo() . "</div>
                     </div>
                     <div id='request-tab-content-globals' class='tab-content request-tab-content hide'>
                         <div class='tab-content-toolbar'>
@@ -178,13 +181,20 @@ class Plonky
                             </div>
                         </div>
                         <div class='content'>
-                            <div id='request-globals' class='list'>" . gfx->selectSomething() . "</div>
+                            <div id='request-globals' class='list'>" . this->gfx->selectSomething() . "</div>
                         </div>
                     </div>
                 </div>
                 <textarea id='projects-json' name='projects_json' class='hide'></textarea>
-                <input type='hidden' id='send_request' name='send_request' value=''>
-                <input type='hidden' id='project_file' name='project_file' value=''>
+                <input type='hidden' id='send_request' name='send_request' value=''>";
+        var file;
+        let file = "";
+        if (isset(_POST["project_file"])) {
+            if (_POST["project_file"] != "") {
+                let file = _POST["project_file"];
+            }
+        }
+        echo "<input type='hidden' id='project_file' name='project_file' value='" . file . "'>
                 <input type='hidden' id='project_key' name='project_key' value=''>
                 <input type='hidden' id='collection_key' name='collection_key' value=''>
                 <input type='hidden' id='collection_item_key' name='collection_item_key' value=''>
@@ -195,10 +205,10 @@ class Plonky
             </div>
             <div id='response-tabs-content' class='tabs-content'>
                 <div id='response-tab-content-response' class='tab-content response-tab-content'>
-                    <div class='content'>" . gfx->toDo() . "</div>
+                    <div class='content'>" . this->outputResponse() . "</div>
                 </div>
                 <div id='response-tab-content-headers' class='tab-content response-tab-content hide'>
-                    <div class='content'>" . gfx->toDo() . "</div>
+                    <div class='content'>" . this->gfx->toDo() . "</div>
                 </div>
             </div>
         </main>
@@ -240,16 +250,16 @@ class Plonky
         </div>
         <div id='error' class='alert' onclick='hideAlert(\"error\")'>
             <div class='row'>
-                <div class='col'>" . gfx->plonkyIcon() . "</div>
+                <div class='col'>" . this->gfx->plonkyIcon() . "</div>
                 <div class='col text'>
-                    <div class='title'>ERROR MEEEEEOW!</div>
+                    <div class='title'>*HICCUP*</div>
                     <div id='error-message'>INFO</div>
                 </div>
             </div>
         </div>
         <div id='info' class='alert' onclick='hideAlert()'>
             <div class='row'>
-                <div class='col'>" . gfx->plonkyIcon() . "</div>
+                <div class='col'>" . this->gfx->plonkyIcon() . "</div>
                 <div class='col text'>
                     <div class='title'>MEEEEEOW!</div>
                     <div id='info-message'>INFO</div>
@@ -259,12 +269,12 @@ class Plonky
         <div id='about' class='popover hide'>
             <div class='box'>
                 <div class='box-title'>
-                    <div class='icon'>" . gfx->genTitle("About Plonky", this->version) . "</div>
+                    <div class='icon'>" . this->gfx->genTitle("About Plonky", this->version) . "</div>
                 </div>
                 <div class='box-content'>
                     <div class='row'>
                         <div id='og-plonky' class='col'>
-                            " . gfx->ogPlonky() . "
+                            " . this->gfx->ogPlonky() . "
                             <p>For mam, the original plonky</p>
                         </div>
                         <div class='col'>
@@ -284,7 +294,7 @@ class Plonky
         </div>
         <div id='edit-project' class='popover hide'>
             <div class='box'>
-                <div class='box-title'><div class='icon'>" . gfx->genTitle("Edit Project") . "</div></div>
+                <div class='box-title'><div class='icon'>" . this->gfx->genTitle("Edit Project") . "</div></div>
                 <div class='box-content'>
                     <div class='input-group'>
                         <span>Project name</span>
@@ -299,18 +309,28 @@ class Plonky
         </div>
         <div id='delete-project' class='popover hide'>
             <div class='box'>
-                <div class='box-title'><div class='icon'>" . gfx->genTitle("Delete Project?") . "</div></div>
-                <div class='box-content'>" . gfx->genDanger() . "</div>
+                <div class='box-title'><div class='icon'>" . this->gfx->genTitle("Delete Project?") . "</div></div>
+                <div class='box-content'>" . this->gfx->genDanger() . "</div>
                 <div class='box-footer'>
                     <button onclick='deleteProject(true)'>yes</button>
                     <button onclick='cancel(\"delete-project\")' class='button-cancel'>no</button>
                 </div>
             </div>
         </div>
+        <div id='delete-param' class='popover hide'>
+            <div class='box'>
+                <div class='box-title'><div class='icon'>" . this->gfx->genTitle("Delete Parameter?") . "</div></div>
+                <div class='box-content'>" . this->gfx->genDanger() . "</div>
+                <div class='box-footer'>
+                    <button onclick='deleteParam(true)'>yes</button>
+                    <button onclick='cancel(\"delete-param\")' class='button-cancel'>no</button>
+                </div>
+            </div>
+        </div>
         <div id='delete-collection' class='popover hide'>
             <div class='box'>
-                <div class='box-title'><div class='icon'>" . gfx->genTitle("Delete Collection?") . "</div></div>
-                <div class='box-content'>" . gfx->genDanger() . "</div>
+                <div class='box-title'><div class='icon'>" . this->gfx->genTitle("Delete Collection?") . "</div></div>
+                <div class='box-content'>" . this->gfx->genDanger() . "</div>
                 <div class='box-footer'>
                     <button onclick='deleteCollection(true)'>yes</button>
                     <button onclick='cancel(\"delete-collection\")' class='button-cancel'>no</button>
@@ -319,8 +339,8 @@ class Plonky
         </div>
         <div id='delete-item' class='popover hide'>
             <div class='box'>
-                <div class='box-title'><div class='icon'>" . gfx->genTitle("Delete Collection Request?") . "</div></div>
-                <div class='box-content'>" . gfx->genDanger() . "</div>
+                <div class='box-title'><div class='icon'>" . this->gfx->genTitle("Delete Collection Request?") . "</div></div>
+                <div class='box-content'>" . this->gfx->genDanger() . "</div>
                 <div class='box-footer'>
                     <button onclick='deleteItem(true)'>yes</button>
                     <button onclick='cancel(\"delete-item\")' class='button-cancel'>no</button>
@@ -361,9 +381,21 @@ class Plonky
         return str;
     }
 
-    private function send()
+    private function outputResponse()
     {
-        var project, url, iLoop, request;
+        if (this->response) {
+            var html;
+            let html = "<pre id='response-response'></pre>";
+            let html = html . "<script type='text/javascript'>document.getElementById('response-response').innerHTML = JSON.stringify(" .  json_encode(this->response) . ", null, '\t');</script>";
+            return html;
+        } else {
+            return this->gfx->selectSomething();
+        }        
+    }
+
+    private function send(array cfg = [])
+    {
+        var project, url, iLoop, request, demo;
         let project = json_decode(file_get_contents(this->projects_folder . _POST["project_file"]));
 
         if (empty(project->collections[_POST["collection_key"]])) {
@@ -398,6 +430,27 @@ class Plonky
                 }
                 let iLoop = iLoop + 1;
             }
+        }
+
+        let demo = false;
+        if (isset(cfg["demo_mode"])) {
+            if (cfg["demo_mode"]) {
+                let demo = true;
+            }
+        }
+
+        if (demo === true) {
+            var response;
+            let response = new \stdClass();
+            let response->copyright = "(c)" . date("Y") . " Kytschi";
+            let response->website = "https://kytschi.com";
+            let response->verion = this->version;
+            let response->code = 200;
+            let response->message = "Here is the demo response";
+            let response->query = url;
+            let response->data = [];
+            let this->response = response;
+            return;
         }
     }
 }

@@ -138,8 +138,44 @@ class Javascript
                     html += \"<input type='checkbox' class='list-checkbox'\" + (element.active ? \" checked='checked'\" : '') + \" data-id='\" + element.id + \"' data-source='\" + source + \"' onchange='updateParamActive(this)'/>\";
                     html += \"<input type='text' value='\" + element.key + \"' class='list-text' data-id='\" + element.id + \"' data-source='\" + source + \"' data-type='key' onkeyup='updateParam(this)'/>\";
                     html += \"<input type='text' value='\" + element.value + \"' class='list-text' data-id='\" + element.id + \"' data-source='\" + source + \"' data-type='value' onkeyup='updateParam(this)'/>\";
+                    html += \"<span title='Delete the parameter' data-id='\" + element.id + \"' data-source='\" + source + \"' onclick='deleteParam(this)' \";
+                    html += \"class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\'/><path fill-rule=\'evenodd\' d=\'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z'/></svg></span>\";
                 html += '</div>';
                 return html;
+            }
+            function deleteParam(element) {
+                if (element === true) {
+                    if (delete_param.dataset.source == 'params') {
+                        projects[project_key].collections[collection_key].items[collection_item_key].params.forEach(function(item, key) {
+                            if (item.id == delete_param.dataset.id) {
+                                projects[project_key].collections[collection_key].items[collection_item_key].params.splice(key, 1);
+                                return;
+                            }
+                        });
+                    } else if (delete_param.dataset.source == 'globals') {
+                        projects[project_key].globals.forEach(function(item, key) {
+                            if (item.id == delete_param.dataset.id) {
+                                projects[project_key].globals.splice(key, 1);
+                                return;
+                            }
+                        });
+                    }
+
+                    delete_param = null;
+                    document.getElementById('delete-param').style.display = 'none';
+                    buildProjectsList();
+                    projectMarkUpdated();
+                    showAlert('Parameter has been deleted');
+                    return;
+                } else {
+                    delete_param = element;
+                    document.getElementById('delete-param').style.display = 'block';
+                }
+            }
+            function updateRequest() {
+                projects[project_key].collections[collection_key]['items'][collection_item_key].url = document.getElementById('request-url').value;
+                projects[project_key].collections[collection_key]['items'][collection_item_key].type = document.getElementById('request-type').value;
+                projectMarkUpdated();
             }
             function updateParam(element) {
                 if (element.dataset.source == 'params') {
@@ -149,6 +185,7 @@ class Javascript
                             return;
                         }
                     });
+                    projectMarkUpdated();
                     return;
                 } else if (element.dataset.source == 'globals') {
                     projects[project_key].globals.forEach(function(item) {
@@ -157,6 +194,7 @@ class Javascript
                             return;
                         }
                     });
+                    projectMarkUpdated();
                     return;
                 }
             }
@@ -168,6 +206,7 @@ class Javascript
                             return;
                         }
                     });
+                    projectMarkUpdated();
                     return;
                 } else if (element.dataset.source == 'globals') {
                     projects[project_key].globals.forEach(function(item) {
@@ -176,6 +215,7 @@ class Javascript
                             return;
                         }
                     });
+                    projectMarkUpdated();
                     return;
                 }
             }
@@ -235,6 +275,11 @@ class Javascript
             }
             function save() {
                 document.getElementById('projects-json').value = JSON.stringify(projects);
+                document.getElementById('send_request').value = '';
+                document.getElementById('project_file').value = '';
+                document.getElementById('project_key').value = project_key;
+                document.getElementById('collection_key').value = collection_key;
+                document.getElementById('collection_item_key').value = collection_item_key;
                 document.getElementById('save-form').submit(); 
             }
             function showTab(tab, target='request') {
@@ -320,7 +365,7 @@ class Javascript
                         html += '</div>';
                     });
                 } catch (err) {
-                    // Do nothing
+                    // Do nothing, catching invalid json
                 }
                 document.getElementById('request-globals').innerHTML = html;
             }
@@ -345,8 +390,7 @@ class Javascript
                         html += createParam(element, 'params');
                     });
                 } catch (err) {
-                    // Do nothing
-                    console.log(err);
+                    // Do nothing, catching invalid json
                 }
                 document.getElementById('request-params').innerHTML = html;
             }

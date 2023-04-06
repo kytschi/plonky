@@ -31,10 +31,12 @@ use Plonky\Style;
 class Plonky
 {
     private projects = [];
-    private save_mode = true;
+    private save_mode = false;
     private projects_folder = "";
 
     private response = null;
+    private headers = null;
+    private saved = false;
 
     private gfx;
     private version = "0.0.1 alpha";
@@ -63,21 +65,23 @@ class Plonky
                 );
             }
 
-            if (isset(_POST["send_request"])) {
-                if (!empty(_POST["send_request"])) {
-                    this->send(cfg);
-                }
-            } elseif (isset(cfg["save_mode"])) {
-                this->save();
-            }
-
             if (array_key_exists("save_mode", cfg)) {
                 if (cfg["save_mode"]) {
                     let this->save_mode = true;
-                } else {
-                    let this->save_mode = false;
                 }
             } 
+
+            var send;
+            let send = false;
+            if (isset(_POST["send_request"])) {
+                if (!empty(_POST["send_request"])) {
+                    this->send(cfg);
+                    let send = true;
+                }
+            }
+            if (this->save_mode && !send) {
+                this->save();
+            }
 
             let files = scandir(this->projects_folder);
             for file in files {
@@ -208,7 +212,7 @@ class Plonky
                     <div class='content'>" . this->outputResponse() . "</div>
                 </div>
                 <div id='response-tab-content-headers' class='tab-content response-tab-content hide'>
-                    <div class='content'>" . this->gfx->toDo() . "</div>
+                    <div class='content'>" . this->outputHeaders() . "</div>
                 </div>
             </div>
         </main>
@@ -348,6 +352,9 @@ class Plonky
             </div>
         </div>";
         (new Javascript())->build(this->projects);
+        if (this->saved) {
+            echo "<script type='text/javascript'>showAlert('All successfully saved');</script>";
+        }
         echo "</body></html>";
     }
 
@@ -357,7 +364,7 @@ class Plonky
             var projects, iLoop, file;
             let projects = json_decode(_POST["projects_json"]);
             if (empty(projects)) {
-                throw new Exception("Failed to decode the projects for saving");
+                throw new Exception("Failed to decode for saving");
             }
 
             let iLoop = 0;
@@ -367,6 +374,7 @@ class Plonky
                 file_put_contents(file, json_encode(projects[iLoop]));
                 let iLoop = iLoop + 1;
             }
+            let this->saved = true;
             //header("location: ");
         }
     }
@@ -379,6 +387,15 @@ class Plonky
             let str = str . "}";
         }
         return str;
+    }
+
+    private function outputHeaders()
+    {
+        if (this->headers) {
+            return "<pre id='response-headers'>". this->headers . "</pre>";
+        } else {
+            return this->gfx->selectSomething();
+        }        
     }
 
     private function outputResponse()
@@ -433,24 +450,72 @@ class Plonky
         }
 
         let demo = false;
-        if (isset(cfg["demo_mode"])) {
+        if (array_key_exists("demo_mode", cfg)) {
             if (cfg["demo_mode"]) {
                 let demo = true;
             }
         }
 
+        var response;
         if (demo === true) {
-            var response;
             let response = new \stdClass();
             let response->copyright = "(c)" . date("Y") . " Kytschi";
             let response->website = "https://kytschi.com";
             let response->verion = this->version;
             let response->code = 200;
-            let response->message = "Here is the demo response";
+            let response->message = "I'm locked to demo mode";
             let response->query = url;
             let response->data = [];
             let this->response = response;
+
             return;
         }
+
+        var curl, ssl, info;
+
+        let curl = curl_init();
+
+        curl_setopt(curl, CURLOPT_URL, url);
+        curl_setopt(curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt(curl, CURLINFO_HEADER_OUT, 1);
+
+        let ssl = true;
+        if (array_key_exists("ssl_validation", cfg)) {
+            if (!cfg["ssl_validation"]) {
+                let ssl = false;
+            }
+        }
+
+        if (!ssl) {
+            curl_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, 0);
+            curl_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+        }
+    
+        let response = curl_exec(curl);
+        // Decode if its json, catch if not.
+        try {
+            let this->response = json_decode(response);
+        } catch \Exception {
+            let this->response = response;
+        }
+        let info = curl_getinfo(curl);
+
+        if (!this->response) {
+            let response = new \stdClass();
+            let response->copyright = "(c)" . date("Y") . " Kytschi";
+            let response->website = "https://kytschi.com";
+            let response->verion = this->version;
+            let response->code = info["http_code"];
+            let response->message = "No response";
+            let response->query = url;
+            let response->data = [];
+            let this->response = response;
+            let this->headers = "No headers";
+        } else {
+            let this->headers = info["request_header"];
+        }
+
+        curl_close(curl);
     }
 }

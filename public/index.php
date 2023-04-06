@@ -26,27 +26,87 @@
 use Plonky\Plonky;
 use Plonky\Exceptions\Exception;
 
+function response($url, $message = 'Here is the demo response', $data = [])
+{
+    $response = new \stdClass();
+    $response->copyright = '(c)' . date('Y') . ' Kytschi';
+    $response->website = 'https://kytschi.com';
+    $response->verion = '0.0.1';
+    $response->code = 200;
+    $response->message = $message;
+    $response->query = $url;
+    $response->data = $data;
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($response);
+    die();
+}
+
+function genUser($id = null)
+{
+    if (!$id) {
+        $id = uniqid();
+    }
+    $user = new \stdClass();
+    $user->id = $id;
+    $user->username = 'Kytschi';
+    $user->first_name = 'Mike';
+    $user->last_name = 'Welsh';
+    $user->email = 'hello@kytschi.com';
+    $user->created_at = '2023-04-06 12:00:45';
+    $user->updated_at = date('Y-m-d H:i:s');
+
+    return $user;
+}
+
 try {
     //Test api.
     if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
-        var_dump('api');
-        die();
+        if (strpos($_SERVER['REQUEST_URI'], '/postcodes/') !== false) {
+            $data = [];
+            $postcode = new \stdClass();
+            $postcode->city = 'Demo City';
+            $postcode->county = 'Demo County';
+            $postcode->postcode = urlencode(strip_tags(str_replace('/api/postcodes/', '', $_SERVER['REQUEST_URI'])));
+            $postcode->country = 'UK';
+            for ($iLoop = 1; $iLoop <= 20; $iLoop++) {
+                $tmp = clone $postcode;
+                $tmp->address_line_1 = $iLoop . ' Demo St';
+                $data[] = $tmp;
+            }
+            response(
+                $_SERVER['REQUEST_URI'],
+                'results for postcode lookup',
+                $data
+            );
+        } elseif (strpos($_SERVER['REQUEST_URI'], '/users/update/') !== false) {
+            response(
+                $_SERVER['REQUEST_URI'],
+                'user successfully updated',
+                genUser(urlencode(strip_tags(str_replace('/api/users/update/', '', $_SERVER['REQUEST_URI']))))
+            );
+        }
     } else {
         /**
          * projects_folder => if not supplied the default is the projects folder.
          *
-         * save_mode => enable the ability to save or not. Handy if you just want people 
+         * ssl_validation =>    perform validation on the SSL certification of the url.
+         *                      By default this is enabled (true) to disable set it to false.
+         *
+         * save_mode => enable (true) or disable (false) the ability to save or not. Handy if you just want people 
          *              to be able to hit up your API without being able to take the actual 
          *              project's data.
+         *              By default this is disabled.
          *
-         * demo_mode => enable demo mode which means you can not hit any live urls and 
+         * demo_mode => enable (true) or disable (false) demo mode which means you can not hit any live urls and 
          *              the response data will be demo data.
+         *              By default this is disabled.
          */
         new Plonky(
             [
                 'projects_folder' => '../projects',
+                'ssl_validation' => false,
                 'save_mode' => true,
-                'demo_mode' => true
+                'demo_mode' => false
             ]
         );
     }

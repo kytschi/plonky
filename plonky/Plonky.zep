@@ -79,7 +79,7 @@ class Plonky
                     let send = true;
                 }
             }
-            if (this->save_mode && !send) {
+            if (!send) {
                 this->save();
             }
 
@@ -353,16 +353,18 @@ class Plonky
         </div>";
         (new Javascript())->build(this->projects);
         if (this->saved) {
-            echo "<script type='text/javascript'>showAlert('All successfully saved');</script>";
-        } elseif (!this->save_mode) {
-            echo "<script type='text/javascript'>showAlert('Save mode disabled', 'error');</script>";
+            if (!this->save_mode) {
+                echo "<script type='text/javascript'>showAlert('Save mode disabled', 'error');</script>";
+            } else {
+                echo "<script type='text/javascript'>showAlert('All successfully saved');</script>";
+            }
         }
         echo "</body></html>";
     }
 
     private function save()
     {
-        if (isset(_POST["projects_json"])) {
+        if (isset(_POST["projects_json"]) && this->save_mode) {
             var projects, iLoop, file;
             let projects = json_decode(_POST["projects_json"]);
             if (empty(projects)) {
@@ -376,9 +378,10 @@ class Plonky
                 file_put_contents(file, json_encode(projects[iLoop]));
                 let iLoop = iLoop + 1;
             }
-            let this->saved = true;
             //header("location: ");
         }
+
+        let this->saved = true;
     }
 
     private function bracketCheck(string str) {

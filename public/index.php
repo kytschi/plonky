@@ -105,8 +105,8 @@ try {
             [
                 'projects_folder' => '../projects',
                 'ssl_validation' => false,
-                'save_mode' => true,
-                'demo_mode' => false
+                'save_mode' => false,
+                'demo_mode' => true
             ]
         );
     }

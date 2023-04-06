@@ -354,6 +354,8 @@ class Plonky
         (new Javascript())->build(this->projects);
         if (this->saved) {
             echo "<script type='text/javascript'>showAlert('All successfully saved');</script>";
+        } elseif (!this->save_mode) {
+            echo "<script type='text/javascript'>showAlert('Save mode disabled', 'error');</script>";
         }
         echo "</body></html>";
     }

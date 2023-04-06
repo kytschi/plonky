@@ -472,6 +472,43 @@ class Style
         #request-title {
             margin-left:0 !important;
         }
+        @media only screen and (min-width: 761px) {
+            html {
+                padding: 2px;
+            }
+            body {
+                width: calc(100% - 4px);
+            }
+        }
+        @media only screen and (max-width: 760px) {
+            #mobile {
+                display: block !important;
+                
+            }
+            #mobile .box {
+                width: 95%;
+                top: 200px !important;
+            }
+            #mobile .icon {
+                padding: 5px;
+                font-size: 18pt;
+            }
+            #mobile .icon span {
+                margin: 20px 10px 10px 10px;
+            }
+            #mobile .icon img {
+                margin-top: 10px;
+                width: 40px;
+                height: 40px;
+            }
+            #mobile .box-content {
+                padding: 10px 20px;
+            }
+
+            #projects, main, #quick-menu-button {
+                display: none !important;
+            }
+        }
         </style>";
     }
 }

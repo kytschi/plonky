@@ -104,7 +104,18 @@ class Plonky
     {
         echo "<!DOCTYPE html><html lang='en'><head>";
         (new Style())->build();
-        echo "</head><body><div id='projects'>
+        echo "</head><body><div id='mobile' class='popover hide'>
+            <div class='box'>
+                <div class='box-title'>
+                    <div class='icon'>" . this->gfx->genTitle("Napoleon Complex") . "</div>
+                </div>
+                <div class='box-content'>
+                    <div class='input-group'>
+                        <p>Your screen size is too small for Plonky</p>
+                    </div>
+                </div>
+            </div>
+        </div><div id='projects'>
             <div class='toolbar'>
                 <div class='icon' onclick='showAbout()'>" . this->gfx->genTitle("Plonky", "a drunken app") . "</div>
             </div>
@@ -472,6 +483,8 @@ class Plonky
             let response->query = url;
             let response->data = [];
             let this->response = response;
+
+            let this->headers = "GET " . url . " HTTP/2\r\nHost: plonky.kytschi.ninja\r\naccept: */*";
 
             return;
         }

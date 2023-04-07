@@ -212,7 +212,7 @@ class Plonky
                                 </svg>
                             </div>
                         </div>
-                        <div class='content'><div id='request-body' class='list'>" . this->gfx->toDo() . "</div></div>
+                        <div class='content'><div id='request-body' class='list'>" . this->gfx->selectSomething() . "</div></div>
                     </div>
                     <div id='request-tab-content-globals' class='tab-content request-tab-content hide'>
                         <div class='tab-content-toolbar'>

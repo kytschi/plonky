@@ -156,9 +156,9 @@ class Plonky
                 </div>
                 <div id='request-tabs' class='tabs'>
                     <div id='request-tab-params' class='tab request-tab selected' onclick='showTab(\"params\")'>Params</div>
+                    <div id='request-tab-body' class='tab request-tab' onclick='showTab(\"body\")'>Body</div>
                     <div id='request-tab-auth' class='tab request-tab' onclick='showTab(\"auth\")'>Auth</div>
                     <div id='request-tab-headers' class='tab request-tab' onclick='showTab(\"headers\")'>Headers</div>
-                    <div id='request-tab-body' class='tab request-tab' onclick='showTab(\"body\")'>Body</div>
                     <div id='request-tab-globals' class='tab request-tab' onclick='showTab(\"globals\")'>Globals</div>
                 </div>
                 <div id='request-tabs-content' class='tabs-content'>
@@ -183,7 +183,19 @@ class Plonky
                         <div class='content'>" . this->gfx->toDo() . "</div>
                     </div>
                     <div id='request-tab-content-body' class='tab-content request-tab-content hide'>
-                        <div class='content'>" . this->gfx->toDo() . "</div>
+                    <div class='tab-content-toolbar'>
+                            <select id='request-body-type' name='request_body_type' onchange='updateRequest()'>
+                                <option value='form'>FORM</option>
+                            </select>
+                            <div class='button' title='Add request parameter' onclick='addRequestBody()'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
+                                    <path fill-rule='evenodd' d='M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z'/>
+                                    <path d='M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z'/>
+                                    <path d='M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z'/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class='content'><div id='request-body' class='list'>" . this->gfx->toDo() . "</div></div>
                     </div>
                     <div id='request-tab-content-globals' class='tab-content request-tab-content hide'>
                         <div class='tab-content-toolbar'>
@@ -228,16 +240,16 @@ class Plonky
             </div>
         </main>
         <div id='quick-menu'>
-            <div class='button' title='Add a collection'>
-                <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
-                    <path d='m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z'/>
-                    <path d='M13.5 10a.5.5 0 0 1 .5.5V12h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V13h-1.5a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z'/>
-                </svg>
-            </div>
             <div class='button' title='Add a request'>
                 <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
                     <path d='M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z'/>
                     <path d='M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z'/>
+                </svg>
+            </div>
+            <div class='button' title='Add a collection'>
+                <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
+                    <path d='m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z'/>
+                    <path d='M13.5 10a.5.5 0 0 1 .5.5V12h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V13h-1.5a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z'/>
                 </svg>
             </div>
             <div class='button' title='Add a project'>

@@ -89,8 +89,8 @@ class Javascript
             function projectMarkUpdated() {
                 document.getElementById('project-title-' + project_key).innerHTML = projects[project_key].name + '*';
             }
-            function addRequestParam() {
-                if (collection_key === null) {
+            function addRequestBody() {
+                if (collection_key === null || collection_item_key === null) {
                     showAlert('Please select a project request', 'error');
                     return;
                 }
@@ -101,8 +101,29 @@ class Javascript
                     'value': '',
                     'active': true
                 };
-                var html = createParam(element, 'params');
-                document.getElementById('request-params').innerHTML += html;
+                document.getElementById('request-body').insertAdjacentHTML('beforeend', createParam(element, 'body'));
+                try {
+                    projects[project_key].collections[collection_key].items[collection_item_key].body.push(element);
+                } catch(err) {
+                    projects[project_key].collections[collection_key].items[collection_item_key].body = [];
+                    projects[project_key].collections[collection_key].items[collection_item_key].body.push(element);
+                }
+
+                projects[project_key].collections[collection_key].items[collection_item_key].body_type = document.getElementById('request-body-type').value;
+            }
+            function addRequestParam() {
+                if (collection_key === null || collection_item_key === null) {
+                    showAlert('Please select a project request', 'error');
+                    return;
+                }
+
+                var element = {
+                    'id': uuid(),
+                    'key': '',
+                    'value': '',
+                    'active': true
+                };
+                document.getElementById('request-params').insertAdjacentHTML('beforeend', createParam(element, 'params'));
                 try {
                     projects[project_key].collections[collection_key].items[collection_item_key].params.push(element);
                 } catch(err) {
@@ -122,8 +143,7 @@ class Javascript
                     'value': '',
                     'active': true
                 };
-                var html = createParam(element, 'globals');
-                document.getElementById('request-globals').innerHTML += html;
+                document.getElementById('request-globals').insertAdjacentHTML('beforeend', createParam(element, 'globals'));
                 try {
                     projects[project_key].globals.push(element);
                 } catch(err) {
@@ -151,6 +171,14 @@ class Javascript
                                 return;
                             }
                         });
+                    } else if (delete_param.dataset.source == 'body') {
+                        projects[project_key].collections[collection_key].items[collection_item_key].body.forEach(function(item, key) {
+                            if (item.id == delete_param.dataset.id) {
+                                projects[project_key].collections[collection_key].items[collection_item_key].body.splice(key, 1);
+                                return;
+                            }
+                        });
+                        message = 'Body item has been deleted';
                     } else if (delete_param.dataset.source == 'globals') {
                         projects[project_key].globals.forEach(function(item, key) {
                             if (item.id == delete_param.dataset.id) {
@@ -174,11 +202,21 @@ class Javascript
             function updateRequest() {
                 projects[project_key].collections[collection_key]['items'][collection_item_key].url = document.getElementById('request-url').value;
                 projects[project_key].collections[collection_key]['items'][collection_item_key].type = document.getElementById('request-type').value;
+                projects[project_key].collections[collection_key].items[collection_item_key].body_type = document.getElementById('request-body-type').value;
                 projectMarkUpdated();
             }
             function updateParam(element) {
                 if (element.dataset.source == 'params') {
                     projects[project_key].collections[collection_key].items[collection_item_key].params.forEach(function(item) {
+                        if (item.id == element.dataset.id) {
+                            item[element.dataset.type] = element.value;
+                            return;
+                        }
+                    });
+                    projectMarkUpdated();
+                    return;
+                } else if (element.dataset.source == 'body') {
+                    projects[project_key].collections[collection_key].items[collection_item_key].body.forEach(function(item) {
                         if (item.id == element.dataset.id) {
                             item[element.dataset.type] = element.value;
                             return;
@@ -392,6 +430,16 @@ class Javascript
                     // Do nothing, catching invalid json
                 }
                 document.getElementById('request-params').innerHTML = html;
+                html = '';
+                try {
+                    item.body.forEach(function(element, item_key) {
+                        html += createParam(element, 'body');
+                    });
+                    document.getElementById('request-body-type').value = projects[project_key].collections[collection_key].items[collection_item_key].body_type;
+                } catch (err) {
+                    // Do nothing, catching invalid json
+                }
+                document.getElementById('request-body').innerHTML = html;
             }
             function growCollection(key) {
                 var collection = document.getElementById('collection-' + key);

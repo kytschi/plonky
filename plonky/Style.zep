@@ -233,6 +233,9 @@ class Style
         #quick-menu .button {
             margin-bottom: 10px;
         }
+        #quick-menu .button:hover, #quick-menu-button .button:hover, #btn-send:hover {
+            background-color: #95295F !important;
+        }
         #quick-menu-button svg, #quick-menu svg {
             width: 30px;
             height: 30px;
@@ -396,6 +399,12 @@ class Style
             float: right;
             cursor: pointer;
         }
+        .tab-content-toolbar select {
+            margin-top: 13px;
+            margin-left: 20px;
+            float: left;
+            cursor: pointer;
+        }
         .tab-content-toolbar .button svg {
             fill: #fff;
             width: 100%;
@@ -428,7 +437,7 @@ class Style
             font-size: 20pt;
             font-weight: bold;
             color: #fff;
-            line-height:15pt;
+            line-height: 15pt;
             cursor: pointer;
         }
         .icon img, .icon span {
@@ -472,6 +481,7 @@ class Style
         #request-title {
             margin-left:0 !important;
         }
+        
         @media (min-width: 760px) and (max-width: 1024px) {
             html {
                 padding: 2px;

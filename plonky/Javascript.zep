@@ -401,11 +401,7 @@ class Javascript
                 var html = \"\";
                 try {
                     projects[key].globals.forEach(function(element, item_key) {
-                        html += \"<div class='list-item'>\";
-                            html += \"<input type='checkbox' class='list-checkbox'\" + (element.active ? \" checked='checked'\" : '') + \"\>\";
-                            html += \"<input type='text' value='\" + element.key + \"' class='list-text'/>\";
-                            html += \"<input type='text' value='\" + element.value + \"' class='list-text'/>\";
-                        html += '</div>';
+                        html += createParam(element, 'globals');
                     });
                 } catch (err) {
                     // Do nothing, catching invalid json

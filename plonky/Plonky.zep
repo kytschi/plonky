@@ -32,6 +32,7 @@ class Plonky
 {
     private projects = [];
     private save_mode = false;
+    private demo_mode = false;
     private projects_folder = "";
 
     private response = null;
@@ -39,7 +40,7 @@ class Plonky
     private saved = false;
 
     private gfx;
-    private version = "0.0.1 alpha";
+    private version = "0.0.2 alpha";
 
     public function __construct(array cfg = [])
 	{
@@ -69,7 +70,29 @@ class Plonky
                 if (cfg["save_mode"]) {
                     let this->save_mode = true;
                 }
-            } 
+            }
+            if (isset(_POST["projects_non_save_json"])) {
+                if (!empty(_POST["projects_non_save_json"])) {
+                    let this->projects = json_decode(_POST["projects_non_save_json"]);
+                }
+            }
+            if (array_key_exists("demo_mode", cfg)) {
+                if (cfg["demo_mode"]) {
+                    let this->demo_mode = true;
+                    let this->projects = null;
+                }
+            }
+
+            if (empty(this->projects)) {
+                let files = scandir(this->projects_folder);
+                for file in files {
+                    if (strpos(file, ".json") !== false) {
+                        let project = json_decode(file_get_contents(this->projects_folder . file));
+                        let project->file = file;
+                        let this->projects[] = project;
+                    }
+                }
+            }
 
             var send;
             let send = false;
@@ -79,17 +102,9 @@ class Plonky
                     let send = true;
                 }
             }
+
             if (!send) {
                 this->save();
-            }
-
-            let files = scandir(this->projects_folder);
-            for file in files {
-                if (strpos(file, ".json") !== false) {
-                    let project = json_decode(file_get_contents(this->projects_folder . file));
-                    let project->file = file;
-                    let this->projects[] = project;
-                }
             }
             this->build();
         } catch \Exception, err {
@@ -117,10 +132,12 @@ class Plonky
             </div>
         </div><div id='projects'>
             <div class='toolbar'>
-                <div class='icon' onclick='showAbout()'>" . this->gfx->genTitle("Plonky", "a drunken app") . "</div>
-            </div>
-            <div id='projects-list'></div>
-        </div>
+                <div class='icon' onclick='showAbout()'>" . this->gfx->genTitle("Plonky", "a drunken app") . "</div></div>
+            <div id='projects-list'></div>";
+            if (this->demo_mode) {
+                echo "<div id='demo-mode'>IN DEMO MODE</div>";
+            }
+        echo "</div>
         <main>
             <div class='toolbar'>
                 <div id='request-title' class='title'>
@@ -135,7 +152,7 @@ class Plonky
             </div>
             <form id='save-form' method='post'>
                 <div id='request-url-box'>
-                    <select id='request-type' name='request_type'>
+                    <select id='request-type' name='request_type' onchange='updateRequest()'>
                         <option value='GET'>GET</option>
                         <option value='POST'>POST</option>
                         <option value='PUT'>PUT</option>
@@ -152,7 +169,7 @@ class Plonky
                         <option value='PROPFIND'>PROPFIND</option>
                         <option value='VIEW'>VIEW</option>
                     </select>
-                    <input id='request-url' name='request_url'/>
+                    <input id='request-url' name='request_url' onkeyup='updateRequest()'/>
                 </div>
                 <div id='request-tabs' class='tabs'>
                     <div id='request-tab-params' class='tab request-tab selected' onclick='showTab(\"params\")'>Params</div>
@@ -212,7 +229,8 @@ class Plonky
                         </div>
                     </div>
                 </div>
-                <textarea id='projects-json' name='projects_json' class='hide'></textarea>
+                <textarea id='projects-save-json' name='projects_save_json' class='hide'></textarea>
+                <textarea id='projects-non-save-json' name='projects_non_save_json' class='hide'></textarea>
                 <input type='hidden' id='send_request' name='send_request' value=''>";
         var file;
         let file = "";
@@ -387,9 +405,9 @@ class Plonky
 
     private function save()
     {
-        if (isset(_POST["projects_json"]) && this->save_mode) {
+        if (isset(_POST["projects_save_json"]) && this->save_mode) {
             var projects, iLoop, file;
-            let projects = json_decode(_POST["projects_json"]);
+            let projects = json_decode(_POST["projects_save_json"]);
             if (empty(projects)) {
                 throw new Exception("Failed to decode for saving");
             }
@@ -440,9 +458,14 @@ class Plonky
 
     private function send(array cfg = [])
     {
-        var project, url, iLoop, request, demo;
-        let project = json_decode(file_get_contents(this->projects_folder . _POST["project_file"]));
+        if (empty(_POST["projects_non_save_json"])) {
+            throw new Exception("Failed process request due to no project data");
+        }
 
+        var project, url, iLoop, request, response, curl, ssl, info;
+        
+        let project = this->projects[_POST["project_key"]];
+        
         if (empty(project->collections[_POST["collection_key"]])) {
             throw new Exception("Failed process request");
         } elseif (empty(project->collections[_POST["collection_key"]]->items[_POST["collection_item_key"]])) {
@@ -450,6 +473,10 @@ class Plonky
         }
 
         let request = project->collections[_POST["collection_key"]]->items[_POST["collection_item_key"]];
+        if (empty(request)) {
+            throw new Exception("Project request not found");
+        }
+
         let url = request->url;
         let iLoop = 0;
         while (iLoop < count(project->globals)) {
@@ -477,32 +504,6 @@ class Plonky
             }
         }
 
-        let demo = false;
-        if (array_key_exists("demo_mode", cfg)) {
-            if (cfg["demo_mode"]) {
-                let demo = true;
-            }
-        }
-
-        var response;
-        if (demo === true) {
-            let response = new \stdClass();
-            let response->copyright = "(c)" . date("Y") . " Kytschi";
-            let response->website = "https://kytschi.com";
-            let response->verion = this->version;
-            let response->code = 200;
-            let response->message = "I'm locked to demo mode";
-            let response->query = url;
-            let response->data = [];
-            let this->response = response;
-
-            let this->headers = "GET " . url . " HTTP/2\r\nHost: plonky.kytschi.ninja\r\naccept: */*";
-
-            return;
-        }
-
-        var curl, ssl, info;
-
         let curl = curl_init();
 
         curl_setopt(curl, CURLOPT_URL, url);
@@ -520,6 +521,28 @@ class Plonky
             curl_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, 0);
             curl_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+        }
+
+        if (strtoupper(request->type) == "POST") {
+            curl_setopt(curl, CURLOPT_POST, 1);
+        } else {
+            curl_setopt(curl, CURLOPT_CUSTOMREQUEST, strtoupper(request->type));
+        }
+
+        if (strtoupper(request->body_type) == "FORM") {
+            var form_data;
+            let form_data = [];
+
+            let iLoop = 0;
+            while (iLoop < count(request->body)) {
+                let form_data[request->body[iLoop]->key] = request->body[iLoop]->value;
+                let iLoop = iLoop + 1;
+            }
+
+            //curl_setopt(curl, CURLOPT_HTTPHEADER, ["Content-Type: application/x-www-form-urlencoded"]);
+            curl_setopt(curl, CURLOPT_POSTFIELDS, form_data);
+        } elseif (strtoupper(request->body_type) == "JSON") {
+            curl_setopt(curl, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
         }
     
         let response = curl_exec(curl);

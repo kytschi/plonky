@@ -234,7 +234,7 @@ class Style
             margin-bottom: 10px;
         }
         #quick-menu .button:hover, #quick-menu-button .button:hover, #btn-send:hover {
-            background-color: #95295F !important;
+            background-color: #A53468 !important;
         }
         #quick-menu-button svg, #quick-menu svg {
             width: 30px;
@@ -480,6 +480,11 @@ class Style
         }
         #request-title {
             margin-left:0 !important;
+        }
+        #demo-mode {
+            padding: 20px 20px;
+            font-weight: bold;
+            background-color: #DE6287;
         }
         
         @media (min-width: 760px) and (max-width: 1024px) {

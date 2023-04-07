@@ -30,7 +30,7 @@ function response($url, $message = 'Here is the demo response', $data = [])
 {
     $response = new \stdClass();
     $response->copyright = '(c)' . date('Y') . ' Kytschi';
-    $response->website = 'https://kytschi.com';
+    $response->website = ($_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['SERVER_NAME'];
     $response->verion = '0.0.1';
     $response->code = 200;
     $response->message = $message;
@@ -41,17 +41,17 @@ function response($url, $message = 'Here is the demo response', $data = [])
     die();
 }
 
-function genUser($id = null)
+function genUser($id = null, $data = [])
 {
     if (!$id) {
         $id = uniqid();
     }
     $user = new \stdClass();
     $user->id = $id;
-    $user->username = 'Kytschi';
-    $user->first_name = 'Mike';
-    $user->last_name = 'Welsh';
-    $user->email = 'hello@kytschi.com';
+    $user->username = !empty($data['username']) ? $data['username'] : 'demo';
+    $user->first_name = !empty($data['first_name']) ? $data['first_name'] : 'Demo';
+    $user->last_name = !empty($data['last_name']) ? $data['last_name'] : 'Demo';
+    $user->email = !empty($data['email']) ? $data['email'] : 'hello@kytschi.com';
     $user->created_at = '2023-04-06 12:00:45';
     $user->updated_at = date('Y-m-d H:i:s');
 
@@ -78,11 +78,55 @@ try {
                 'results for postcode lookup',
                 $data
             );
+        } elseif (strpos($_SERVER['REQUEST_URI'], '/users/add') !== false) {
+            response(
+                $_SERVER['REQUEST_URI'],
+                'user successfully created',
+                genUser(null, $_POST)
+            );
         } elseif (strpos($_SERVER['REQUEST_URI'], '/users/update/') !== false) {
             response(
                 $_SERVER['REQUEST_URI'],
                 'user successfully updated',
-                genUser(urlencode(strip_tags(str_replace('/api/users/update/', '', $_SERVER['REQUEST_URI']))))
+                genUser(
+                    urlencode(strip_tags(str_replace('/api/users/update/', '', $_SERVER['REQUEST_URI']))),
+                    $_POST
+                )
+            );
+        } elseif (strpos($_SERVER['REQUEST_URI'], '/users/delete/') !== false) {
+            response(
+                $_SERVER['REQUEST_URI'],
+                'user successfully deleted',
+                []
+            );
+        } elseif (strpos($_SERVER['REQUEST_URI'], '/users/notifications/') !== false) {
+            $data = [];
+            $message = new \stdClass();
+            $message->created_at = '2023-04-06 12:00:45';
+            $message->updated_at = '2023-04-06 12:00:45';
+            for ($iLoop = 1; $iLoop <= 20; $iLoop++) {
+                $tmp = clone $message;
+                $tmp->message = $iLoop . ' message';
+                $data[] = $tmp;
+            }
+            response(
+                $_SERVER['REQUEST_URI'],
+                'user notifications',
+                $data
+            );
+        } elseif (strpos($_SERVER['REQUEST_URI'], '/users') !== false) {
+            if (!empty($_SERVER['REQUEST_METHOD'])) {
+                if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                    response(
+                        $_SERVER['REQUEST_URI'],
+                        'invalid method'
+                    );
+                }
+            }
+            response(
+                $_SERVER['REQUEST_URI'],
+                'users found',
+                genUser(null, $_POST)
             );
         }
     } else {

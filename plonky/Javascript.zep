@@ -71,6 +71,7 @@ class Javascript
                     showAlert('Please select a project collection item', 'error');
                     return;
                 }
+                document.getElementById('projects-non-save-json').value = JSON.stringify(projects);
                 document.getElementById('send_request').value = 'go';
                 document.getElementById('project_file').value = projects[project_key].file;
                 document.getElementById('project_key').value = project_key;
@@ -311,7 +312,7 @@ class Javascript
                 document.getElementById(id).style.display = 'none';
             }
             function save() {
-                document.getElementById('projects-json').value = JSON.stringify(projects);
+                document.getElementById('projects-save-json').value = JSON.stringify(projects);
                 document.getElementById('send_request').value = '';
                 document.getElementById('project_file').value = '';
                 document.getElementById('project_key').value = project_key;
@@ -388,8 +389,13 @@ class Javascript
 
                 if (collection_item_key !== null) {
                     selectCollectionItem(collection_key, collection_item_key);
+                }";
+                if (isset(_POST["send_request"])) {
+                    if (!empty(_POST["send_request"])) {
+                        echo "projectMarkUpdated();";
+                    }
                 }
-            }
+            echo "}
             function selectProject(key) {
                 project_key = key;
                 var html = \"\";

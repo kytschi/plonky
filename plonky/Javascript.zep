@@ -88,7 +88,92 @@ class Javascript
                 );
             }
             function projectMarkUpdated() {
-                document.getElementById('project-title-' + project_key).innerHTML = projects[project_key].name + '*';
+                document.getElementById('project-title-label-' + project_key).innerHTML = projects[project_key].name + '*';
+            }
+            function addRequest() {
+                if (collection_key === null || project_key === null) {
+                    showAlert('Please select a project collection', 'error');
+                    return;
+                }
+
+                var element = {
+                    'id': uuid(),
+                    'name': 'RENAME ME',
+                    'type': 'GET',
+                    'url': '',
+                    'params': [],
+                    'auth': [],
+                    'headers': [],
+                    'body': []
+                };
+
+                try {
+                    projects[project_key].collections[collection_key].items.push(element);
+                } catch(err) {
+                    showAlert('Failed to add the project request', 'error');
+                }
+
+                collection_item_key = projects[project_key].collections[collection_key].items.length - 1;
+
+                showQuickMenu();
+                buildProjectsList();
+                projectMarkUpdated();
+            }
+            function editRequest(key = false) {
+                if (key === true) {
+                    document.getElementById('edit-request').style.display = 'none';
+                    projects[project_key].collections[collection_key].items[collection_item_key].name = document.getElementById('request-name').value;
+                    buildProjectsList();
+                    projectMarkUpdated();
+                    showAlert('Project request updated, do not forget to save!');
+                } else {
+                    document.getElementById('request-name').value = projects[project_key].collections[collection_key].items[collection_item_key].name;
+                    document.getElementById('edit-request').style.display = 'block';
+                }
+            }
+            function addCollection() {
+                if (project_key === null) {
+                    showAlert('Please select a project', 'error');
+                    return;
+                }
+
+                var element = {
+                    'id': uuid(),
+                    'name': 'RENAME ME',
+                    'items': []
+                };
+
+                try {
+                    projects[project_key].collections.push(element);
+                } catch(err) {
+                    showAlert('Failed to add the project collection', 'error');
+                }
+
+                collection_key = projects[project_key].collections.length - 1;
+
+                showQuickMenu();
+                buildProjectsList();
+                projectMarkUpdated();
+            }
+            function addProject() {
+                var element = {
+                    'file': uuid() + '.json',
+                    'name': 'RENAME ME',
+                    'collections': [],
+                    'globals': []
+                };
+
+                try {
+                    projects.push(element);
+                } catch(err) {
+                    showAlert('Failed to add the project', 'error');
+                }
+
+                project_key = projects.length - 1;
+
+                showQuickMenu();
+                buildProjectsList();
+                projectMarkUpdated();
             }
             function addRequestBody() {
                 if (collection_key === null || collection_item_key === null) {
@@ -299,10 +384,9 @@ class Javascript
             function deleteProject(key) {
                 if (key === true) {
                     document.getElementById('delete-project').style.display = 'none';
-                    delete projects[project_key];
-                    project_key = null;
+                    projects[project_key].delete = true;
                     buildProjectsList();
-                    showAlert('Project has been deleted');
+                    showAlert('Project marked as deleted, do not forget to save!');
                 } else {
                     project_key = key;
                     document.getElementById('delete-project').style.display = 'block';
@@ -336,8 +420,8 @@ class Javascript
                     if (!key && project_key === null) {
                         project_key = key;
                     }
-                    html += \"<div id='project-\" + key + \"' class='project' onclick='selectProject(\" + key + \");'>\";
-                        html += \"<div class='project-title\" + (!project_key ? ' selected' : '') + \"'>\";
+                    html += \"<div id='project-\" + key + \"' class='project\" + (project.delete ? ' deleted' : '') + \"' onclick='selectProject(\" + key + \");'>\";
+                        html += \"<div id='project-title-\" + key + \"' class='project-title\" + (key == project_key ? ' selected' : '') + \"'>\";
                         html += \"<span id='project-title-\" + key + \"'>\" + project.name + '</span>';
                         html += \"<div title='Edit the project' onclick='editProject(\" + key + \")' \";
                         html += \"class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z'/></svg></div>\";
@@ -346,7 +430,7 @@ class Javascript
                         html += '</div>';
                         html += \"<div class='project-collections'>\";
                         project.collections.forEach(function(collection, col_key) {
-                            html += \"<div id='collection-\" + col_key + \"' class='project-collection' onclick='collection_key=\" + col_key + \"'>\";
+                            html += \"<div id='collection-\" + col_key + \"' class='project-collection' onclick='selectCollection(\" + col_key + \")'>\";
                                 html += \"<div class='project-collection-toolbar'>\";
                                     if (collection.items.length != 0) {
                                         html += \"<div onclick='growCollection(\" + col_key + \")' \";
@@ -354,7 +438,7 @@ class Javascript
                                         html += \"<div onclick='growCollection(\" + col_key + \")' \";
                                         html += \"class='button-shrink button hide'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/></svg></div>\";
                                     }
-                                    html += \"<span onclick='growCollection(\" + col_key + \")' >\" + collection.name + '</span>';
+                                    html += \"<span id='collection-title-\" + col_key + \"' class='project-collection-title' onclick='growCollection(\" + col_key + \")' >\" + collection.name + '</span>';
                                     html += \"<div title='Edit the collection' onclick='editCollection(\" + col_key + \")' \";
                                     html += \"class='button'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z'/></svg></div>\";
                                     html += \"<div onclick='deleteCollection(\" + col_key + \")' \";
@@ -385,6 +469,7 @@ class Javascript
 
                 if (collection_key !== null) {
                     growCollection(collection_key);
+                    selectCollection(collection_key);
                 }
 
                 if (collection_item_key !== null) {
@@ -398,6 +483,15 @@ class Javascript
             echo "}
             function selectProject(key) {
                 project_key = key;
+
+                var elements = document.getElementsByClassName('project-title');
+                if (elements) {
+                    for (var iLoop = 0; iLoop < elements.length; iLoop++) {
+                        elements[iLoop].classList.remove('selected');
+                    }
+                }
+                document.getElementById('project-title-' + key).classList.add('selected');
+
                 var html = \"\";
                 try {
                     projects[key].globals.forEach(function(element, item_key) {
@@ -407,6 +501,16 @@ class Javascript
                     // Do nothing, catching invalid json
                 }
                 document.getElementById('request-globals').innerHTML = html;
+            }
+            function selectCollection(key) {
+                collection_key = key;
+                var elements = document.getElementsByClassName('project-collection-title');
+                if (elements) {
+                    for (var iLoop = 0; iLoop < elements.length; iLoop++) {
+                        elements[iLoop].classList.remove('selected');
+                    }
+                }
+                document.getElementById('collection-title-' + key).classList.add('selected');
             }
             function selectCollectionItem(col_key, key) {
                 var html = '';

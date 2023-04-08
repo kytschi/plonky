@@ -115,8 +115,8 @@ class Style
             overflow-x: hidden;
             padding: 20px;
         }
-        .project {
-            margin-bottom: 20px;
+        .project.deleted .project-title span {
+            text-decoration: line-through;
         }
         .project-collection {
             display: grid;
@@ -165,6 +165,7 @@ class Style
             font-weight: bold;
             color: #fff;
             padding: 20px;
+            cursor: pointer;
         }
         .toolbar {
             height: 110px;
@@ -203,6 +204,20 @@ class Style
         }
         .toolbar .title span, .project-collection-item .title span {
             font-size: 10pt;
+        }
+        .toolbar .title p span {
+            font-size: 20pt;
+            float: left;
+        }
+        .toolbar .title .button-small {
+            float: left;
+            background: none;
+            border: 0;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .toolbar .title .button-small svg {
+            fill: #fff;
         }
         #quick-menu-button {                
             position: fixed;
@@ -412,6 +427,10 @@ class Style
         }
         .selected {
             background-color: #DE6287 !important;
+        }
+        .project-collection-title.selected {
+            background: none !important;
+            color: #DE6287 !important;
         }
         .project-collection-item.selected {
             background-color: #A53468 !important;

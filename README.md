@@ -15,6 +15,27 @@ And this is what come of it.
 ### Please note
 This is more of a tech demo than an actual functional app. That doesn't mean it can't be used as such but its just a tool for me to play around with.
 
+## Requirements
+
+* PHP 7+
+* CURL
+* PHP-CURL
+
+## Installation
+
+Copy the module located in the ext/modules folder to your PHP modules folder on your server.
+https://github.com/kytschi/plonky/blob/main/ext/modules/plonky.so
+
+Now create an ini to load the module in your PHP modules ini folder.
+```
+; configuration for php to enable plonky
+extension=plonky.so
+```
+
+You can also just create the ini and point the `extension` to the folder with the `plonky.so`.
+
+And don't forget to restart your webserver.
+
 ## Check it out
 https://plonky.kytschi.com
 

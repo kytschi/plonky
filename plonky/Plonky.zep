@@ -126,7 +126,8 @@ class Plonky
 
     private function build()
     {
-        echo "<!DOCTYPE html><html lang='en'><head>";
+        echo "<!DOCTYPE html><html lang='en'><head>
+            <link rel='icon' type='image/png' sizes='64x64' href='" . this->gfx->logo() . "'>";
         (new Style())->build();
         echo "</head><body><div id='mobile' class='popover hide'>
             <div class='box'>
@@ -344,6 +345,13 @@ class Plonky
                                     By Mike Welsh<br/>
                                     <a href='mailto:hello@kytschi.com'>hello@kytschi.com</a>
                                 </span>
+                            </p>
+                            <p>
+                                Repo: <a href='https://github.com/kytschi/plonky' target='_blank'>click here</a>
+                            </p>
+                            <p>
+                                Check out my website for more dumb stuff.<br/><br/>
+                                <a href='https://kytschi.com' target='_blank'>website</a>
                             </p>
                         </div>
                     </div>

@@ -415,6 +415,12 @@ class Javascript
                 document.getElementById(target + '-tab-content-' + tab).style.display = 'block';
             }
             function buildProjectsList() {
+                document.getElementById('request-name-edit').classList.add('hide');
+                document.getElementById('request-name-info').innerHTML = 'Request';
+                document.getElementById('request-type-info').innerHTML = 'GET';
+                document.getElementById('request-type').value = 'GET';
+                document.getElementById('request-url').value = '';                
+
                 var html = '';
                 projects.forEach(function(project, key) {
                     if (!key && project_key === null) {
@@ -521,6 +527,9 @@ class Javascript
                 document.getElementById('request-type-info').innerHTML = item.type;
                 document.getElementById('request-type').value = item.type;
                 document.getElementById('request-url').value = item.url;
+
+                document.getElementById('request-name-edit').classList.remove('hide');
+
                 var elements = document.getElementsByClassName('project-collection-item');
                 if (elements) {
                     for (var iLoop = 0; iLoop < elements.length; iLoop++) {
